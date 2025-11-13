@@ -1,0 +1,38 @@
+<div class="content">
+  <section class="Left">
+    <div class="login-container">
+      <div class="login-card">
+        <div class="login-intro">
+          <div class="login-title">Sign in</div>
+          <div class="login-subtitle">Accedi per continuare</div>
+        </div>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <label>Email</label>
+          <input type="email" formControlName="email" />
+          <div class="error" *ngIf="form.get('email')?.invalid && form.get('email')?.touched">
+            Email non valida
+          </div>
+
+          <label>Password</label>
+          <input type="password" formControlName="password" />
+          <div class="error" *ngIf="form.get('password')?.invalid && form.get('password')?.touched">
+            Password obbligatoria
+          </div>
+
+          <button type="submit" [disabled]="loading">
+            {{ loading ? 'Verifica...' : 'Accedi' }}
+          </button>
+
+          <p *ngIf="error" class="error">{{ error }}</p>
+        </form>
+      </div>
+    </div>
+  </section>
+  <section class="right">
+    <h5>Taskly Project</h5>
+    <h2>Bentornato! Pronto a creare qualcosa di nuovo?</h2>
+    <div class="image">
+      <img src="/materials/login.png">
+    </div>
+  </section>
+</div>

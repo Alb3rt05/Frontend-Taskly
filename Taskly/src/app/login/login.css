@@ -1,0 +1,245 @@
+/* ====== LOGIN PAGE LAYOUT ====== */
+.content {
+  display: flex;
+  height: 100dvh; /* usa viewport dinamico per mobile */
+  width: 100vw;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+/* ====== LEFT PANEL (FORM SECTION) ====== */
+.Left {
+  flex: 1;
+  background: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem 6rem;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+/* Titolo principale (Taskly) */
+.login-card h2 {
+  color: #4798f4;
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* ====== INTRO TEXT (Sign in + Subtitle) ====== */
+.login-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  padding-top: 1rem;
+  text-align: center;
+}
+
+.login-intro .login-title {
+  color: #333333;
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+.login-intro .login-subtitle {
+  color: #999999;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+/* ====== FORM ELEMENTS ====== */
+form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+label {
+  color: #999;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+input {
+  padding: 1rem 1.2rem;
+  background: #fafafa;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #333;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus {
+  border-color: #4798f4;
+}
+
+button {
+  align-self: center;
+  width: 100%;
+  margin-top: 2rem;
+  padding: 1rem;
+  background: #4798f4;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #3c86da;
+}
+
+button:disabled {
+  background: #a6c8f7;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #e74c3c;
+  font-size: 0.85rem;
+}
+
+/* ====== RIGHT PANEL (GRADIENT SECTION) ====== */
+.right {
+  flex: 1;
+  background: linear-gradient(20deg, #4798f4 0%, #3ffbc3 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #fff;
+  padding: 4rem 6rem;
+}
+
+.right h5 {
+  font-size: 1rem;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+.right h2 {
+  max-width: 480px;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 1rem 0 2rem;
+}
+
+.right .image img {
+  width: 300px;
+  height: auto;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.right .image img:hover {
+  transform: scale(1.05);
+}
+
+/* ====== RESPONSIVE DESIGN ====== */
+@media (max-width: 1024px) {
+  .Left, .right {
+    padding: 3rem 4rem;
+  }
+
+  .login-card h2,
+  .right h2 {
+    font-size: 1.75rem;
+  }
+
+  .right .image img {
+    width: 240px;
+  }
+}
+
+@media (max-width: 768px) {
+  .content {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .Left, .right {
+    width: 100%;
+    padding: 2.5rem;
+  }
+
+  .right {
+    order: -1; /* Mostra prima il banner sopra al form */
+  }
+
+  .login-intro .login-title {
+    font-size: 1.3rem;
+  }
+
+  .login-intro .login-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .right h2 {
+    font-size: 1.5rem;
+  }
+
+  .right .image img {
+    width: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .Left, .right {
+    padding: 2rem;
+  }
+
+  .login-intro {
+    gap: 0.6rem;
+  }
+
+  .login-intro .login-title {
+    font-size: 1.1rem;
+  }
+
+  .login-intro .login-subtitle {
+    font-size: 0.85rem;
+  }
+
+  .login-card h2 {
+    font-size: 1.4rem;
+  }
+
+  .right h2 {
+    font-size: 1.3rem;
+  }
+
+  .right .image img {
+    width: 160px;
+  }
+
+  label {
+    font-size: 0.8rem;
+  }
+
+  input {
+    padding: 0.8rem;
+  }
+
+  button {
+    font-size: 0.9rem;
+  }
+}
