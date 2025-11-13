@@ -2,7 +2,10 @@
   <section class="Left">
     <div class="login-container">
       <div class="login-card">
-        <h2>Taskly - Login</h2>
+        <div class="login-intro">
+          <div class="login-title">Sign in</div>
+          <div class="login-subtitle">Accedi per continuare</div>
+        </div>
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
           <label>Email</label>
           <input type="email" formControlName="email" />
@@ -29,7 +32,7 @@
     <h5>Taskly Project</h5>
     <h2>Bentornato! Pronto a creare qualcosa di nuovo?</h2>
     <div class="image">
-      <img src="../../assets/login.png" alt="">
+      <img src="/materials/login.png">
     </div>
   </section>
 </div>
