@@ -1,5 +1,6 @@
 /* ====== BASE LAYOUT ====== */
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -7,14 +8,15 @@ html, body {
   overflow: hidden;
 }
 
-app-root, :host {
+app-root,
+:host {
   display: block;
   height: 100%;
   width: 100%;
 }
 
 :host {
-  display:  block;
+  display: block;
   font-family: 'Poppins', sans-serif;
 }
 
@@ -71,10 +73,16 @@ app-root, :host {
 }
 
 .login-card h2 {
-  color: #4798f4;
   font-size: 2rem;
   font-weight: 700;
   text-align: center;
+  /* Gradiente sul testo */
+  background: linear-gradient(90deg, #4798F4, #A64BCF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  /* Per compatibilità con altri browser */
+  background-clip: text;
+  color: transparent;
 }
 
 /* ====== FORM ELEMENTS ====== */
