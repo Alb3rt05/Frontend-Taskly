@@ -2,22 +2,17 @@
   <aside class="sidebar">
     <div class="sidebar-header">
       <h2 class="logo">Taskly</h2>
-      <hr />
     </div>
 
     <nav class="menu">
       <p class="menu-title">Menu</p>
       <ul>
-        <li class="menu-item active">
-          <span class="icon">
-            <img src="/materials/homeactive.png">
-          </span>
+        <li class="menu-item">
+          <span class="icon">🏠</span>
           <span>Home</span>
         </li>
-        <li class="menu-item">
-          <span class="icon">
-            <img src="/materials/profiloinactive.png">
-          </span>
+        <li class="menu-item active">
+          <span class="icon">👤</span>
           <span>Profilo</span>
         </li>
       </ul>
@@ -31,9 +26,9 @@
           <span class="email">mario@gmail.com</span>
         </div>
       </div>
-      <div class="logout-icon">
+      <button class="logout-btn">
         <img src="/materials/logout.png">
-      </div>
+      </button>
     </div>
   </aside>
 
@@ -58,7 +53,10 @@
       <div class="projects-sidebar">
         <div class="projects-title">Tutti i progetti</div>
         <ul>
-          <li class="project-item active">First Project <img style="margin-left: 40px;" src="/materials/bin.png"></li>
+          <li class="project-item active">First Project
+            <button class="action edit">✏️</button>
+            <button class="action delete">🗑️</button>
+          </li>
           <li class="project-item">Second Project</li>
           <li class="project-item">Work prj</li>
           <li class="project-item">Freelance</li>
