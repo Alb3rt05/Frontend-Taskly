@@ -187,10 +187,13 @@ input, button, textarea {
 .user-info {
   display: inline-flex;
   gap: 10px;
-  padding: 1.5rem;
+}
+.user-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   border-top: 1px solid var(--border);
 }
-
 .user {
   display: flex;
   align-items: center;
