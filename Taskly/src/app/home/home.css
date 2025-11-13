@@ -1,4 +1,5 @@
 /* ====== GLOBAL ====== */
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -35,9 +36,13 @@ body, html {
 }
 
 .sidebar-header h2.logo {
-  color: #4798f4;
   font-size: 1.75rem;
   font-weight: 700;
+    background: linear-gradient(90deg, #4798F4, #A64BCF); /* esempio: da blu a viola */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
 }
 
 .sidebar hr {
@@ -71,8 +76,8 @@ body, html {
 }
 
 .menu-item.active {
-  background: #4798f4;
-  color: #fff;
+  border-left: 3px solid #4798f4;
+  color: #4798f4;
 }
 
 .menu-item:hover {
@@ -83,7 +88,6 @@ body, html {
   width: 24px;
   height: 24px;
   margin-right: 0.8rem;
-  background: #ccc;
   border-radius: 4px;
 }
 
@@ -128,7 +132,6 @@ body, html {
   margin-top: 1rem;
   width: 24px;
   height: 24px;
-  background: #e74c3c;
   border-radius: 4px;
   cursor: pointer;
 }
@@ -150,8 +153,8 @@ body, html {
   align-items: center;
   background: linear-gradient(20deg, #4798f4 0%, #3ffbc3 100%);
   border-radius: 12px;
-  padding: 2rem;
   color: #fff;
+  padding-left: 1rem;
   flex-wrap: wrap;
 }
 
@@ -237,8 +240,8 @@ body, html {
 }
 
 .project-item.active {
-  background: #4798f4;
-  color: #fff;
+  border-left: 3px solid #4798f4;
+  color: #4798f4;
 }
 
 .project-item:hover,
