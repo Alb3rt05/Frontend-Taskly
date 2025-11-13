@@ -1,32 +1,40 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
-/* ====== GLOBAL RESET & BASE ====== */
-html, body {
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ===============================
+   GLOBAL VARIABLES & BASE STYLES
+   =============================== */
+:root {
+  --primary: #4798f4;
+  --secondary: #3ffbc3;
+  --text-main: #333333;
+  --text-muted: #999999;
+  --bg-light: #ffffff;
+  --bg-soft: #fafafa;
+  --border: #e6e6e6;
+  --radius: 12px;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ====== RESET & BASE ====== */
+* {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+html, body {
   width: 100%;
   height: 100%;
   overflow-x: hidden;
-  background: #fff;
-  font-family: 'Poppins', sans-serif;
-  color: #333;
+  background: var(--bg-soft);
+  color: var(--text-main);
 }
 
 app-root, :host {
   display: block;
-  height: 100%;
   width: 100%;
-}
-
-/* ====== VARIABLES ====== */
-:root {
-  --primary-blue: #4798F4;
-  --primary-green: #3FFBC3;
-  --light-gray: #FAFAFA;
-  --medium-gray: #F2F2F2;
-  --border-gray: #E6E6E6;
-  --text-gray: #666;
-  --radius: 16px;
-  --shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+  height: 100%;
 }
 
 /* ====== UTILITIES ====== */
@@ -34,27 +42,42 @@ app-root, :host {
   max-width: 1440px;
   margin: 0 auto;
   padding: 20px;
-  box-sizing: border-box;
 }
 
 .card {
-  background: var(--light-gray);
+  background: var(--bg-light);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 20px;
 }
 
 .btn {
-  background: var(--primary-blue);
-  color: white;
+  background: var(--primary);
+  color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 10px 16px;
+  padding: 0.9rem 1.5rem;
+  font-weight: 600;
   cursor: pointer;
-  font-weight: 500;
-  transition: background 0.3s ease;
+  transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .btn:hover {
   background: #3c86da;
+  transform: translateY(-1px);
+}
+
+input, button, textarea {
+  font-family: 'Inter', sans-serif;
+}
+
+/* ====== TYPOGRAPHY ====== */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+p {
+  color: var(--text-muted);
+  line-height: 1.5;
 }
