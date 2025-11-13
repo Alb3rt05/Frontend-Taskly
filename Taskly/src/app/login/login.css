@@ -1,16 +1,15 @@
-/* ====== LOGIN PAGE LAYOUT ====== */
+/* ====== BASE LAYOUT ====== */
 .content {
   display: flex;
-  height: 100dvh; /* usa viewport dinamico per mobile */
-  width: 100vw;
-  background: #ffffff;
+  min-height: 100vh;
+  background: var(--bg-light);
   overflow: hidden;
 }
 
-/* ====== LEFT PANEL (FORM SECTION) ====== */
+/* ====== LEFT PANEL (LOGIN FORM) ====== */
 .Left {
   flex: 1;
-  background: #ffffff;
+  background: var(--bg-light);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -29,15 +28,18 @@
   gap: 2.5rem;
 }
 
-/* Titolo principale (Taskly) */
 .login-card h2 {
-  color: #4798f4;
   font-size: 2rem;
   font-weight: 700;
   text-align: center;
+  background: linear-gradient(90deg, var(--primary), #A64BCF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
 }
 
-/* ====== INTRO TEXT (Sign in + Subtitle) ====== */
+/* ====== INTRO TEXT ====== */
 .login-intro {
   display: flex;
   flex-direction: column;
@@ -48,18 +50,17 @@
 }
 
 .login-intro .login-title {
-  color: #333333;
+  color: var(--text-main);
   font-size: 1.5rem;
   font-weight: 400;
 }
 
 .login-intro .login-subtitle {
-  color: #999999;
+  color: var(--text-muted);
   font-size: 1rem;
-  font-weight: 400;
 }
 
-/* ====== FORM ELEMENTS ====== */
+/* ====== FORM ====== */
 form {
   width: 100%;
   display: flex;
@@ -68,31 +69,33 @@ form {
 }
 
 label {
-  color: #999;
+  color: var(--text-muted);
   font-size: 0.9rem;
   font-weight: 500;
 }
 
 input {
   padding: 1rem 1.2rem;
-  background: #fafafa;
-  border: 1px solid #e6e6e6;
+  background: #dad9d9;
+  border: 1px solid #adadad;
   border-radius: 8px;
   font-size: 1rem;
-  color: #333;
+  color: var(--text-main);
+  outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 input:focus {
-  border-color: #4798f4;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(71, 152, 244, 0.2);
 }
 
 button {
   align-self: center;
   width: 100%;
-  margin-top: 2rem;
+  margin-top: 3rem;
   padding: 1rem;
-  background: #4798f4;
+  background: var(--primary);
   border: none;
   border-radius: 10px;
   color: #fff;
@@ -114,12 +117,13 @@ button:disabled {
 .error {
   color: #e74c3c;
   font-size: 0.85rem;
+  margin-top: -0.5rem;
 }
 
-/* ====== RIGHT PANEL (GRADIENT SECTION) ====== */
+/* ====== RIGHT PANEL ====== */
 .right {
   flex: 1;
-  background: linear-gradient(20deg, #4798f4 0%, #3ffbc3 100%);
+  background: linear-gradient(20deg, var(--primary) 0%, var(--secondary) 100%);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -173,7 +177,7 @@ button:disabled {
 @media (max-width: 768px) {
   .content {
     flex-direction: column;
-    height: auto;
+    min-height: auto;
   }
 
   .Left, .right {
@@ -182,41 +186,39 @@ button:disabled {
   }
 
   .right {
-    order: -1; /* Mostra prima il banner sopra al form */
-  }
-
-  .login-intro .login-title {
-    font-size: 1.3rem;
-  }
-
-  .login-intro .login-subtitle {
-    font-size: 0.9rem;
+    order: -1;
   }
 
   .right h2 {
     font-size: 1.5rem;
+    max-width: 100%;
   }
 
   .right .image img {
     width: 200px;
   }
+
+  .login-card {
+    gap: 2rem;
+  }
+
+  input {
+    font-size: 0.95rem;
+    padding: 0.9rem 1rem;
+  }
 }
 
 @media (max-width: 480px) {
-  .Left, .right {
-    padding: 2rem;
-  }
-
-  .login-intro {
-    gap: 0.6rem;
-  }
-
   .login-intro .login-title {
     font-size: 1.1rem;
   }
 
   .login-intro .login-subtitle {
     font-size: 0.85rem;
+  }
+
+  .Left, .right {
+    padding: 2rem;
   }
 
   .login-card h2 {
@@ -233,10 +235,6 @@ button:disabled {
 
   label {
     font-size: 0.8rem;
-  }
-
-  input {
-    padding: 0.8rem;
   }
 
   button {
