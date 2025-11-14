@@ -3,32 +3,8 @@
   display: flex;
   min-height: 100vh;
   overflow-x: hidden;
+  padding :20px;
 }
-
-/* ====== SIDEBAR ====== */
-.sidebar {
-  width: 260px;
-  background: var(--bg-light);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.sidebar-header {
-  padding: 2rem 1.5rem;
-}
-
-.sidebar-header h2.logo {
-  font-size: 1.75rem;
-  font-weight: 700;
-  background: linear-gradient(90deg, var(--primary), #A64BCF);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: transparent;
-}
-
 /* ====== MAIN ====== */
 .main {
   flex: 1;
@@ -116,18 +92,7 @@
     flex-direction: column;
   }
 
-  .sidebar {
-    width: 100%;
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 0.5rem 1rem;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .menu {
-    display: none; /* Da sostituire con hamburger menu in futuro */
-  }
+ 
 
   .main {
     padding: 1.5rem;
