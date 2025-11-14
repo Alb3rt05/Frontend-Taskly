@@ -2,38 +2,67 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class AuthService {
-  private baseUrl = 'http://localhost:8080/api'; // Quarkus backend URL
-  private tokenKey = 'taskly_token';
+  private readonly baseUrl = 'http://localhost:8080/api'; // Quarkus backend URL
+  private readonly tokenKey = 'taskly_token';
 
   constructor(private http: HttpClient) {}
 
   async login(email: string, password: string): Promise<boolean> {
     try {
-      const response: any = await firstValueFrom(
-        this.http.post(`${this.baseUrl}/auth/login`, { email, password })
+      const response = await firstValueFrom(
+        this.http.post<{ token?: string }>(`${this.baseUrl}/auth/login`, {
+          email,
+          password
+        })
       );
 
-      if (response && response.token) {
-        localStorage.setItem(this.tokenKey, response.token);
+      if (response?.token) {
+        this.safeSetToken(response.token);
         return true;
       }
+
       return false;
     } catch {
       return false;
     }
   }
 
-  logout() {
-    localStorage.removeItem(this.tokenKey);
+  logout(): void {
+    this.safeRemoveToken();
   }
 
   getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    return this.safeGetToken();
   }
 
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    return !!this.safeGetToken();
+  }
+
+  // -----------------------------------------
+  // SAFE METHODS (fix per test & server-side)
+  // -----------------------------------------
+
+  private safeSetToken(token: string): void {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(this.tokenKey, token);
+    }
+  }
+
+  private safeRemoveToken(): void {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem(this.tokenKey);
+    }
+  }
+
+  private safeGetToken(): string | null {
+    if (typeof localStorage !== 'undefined') {
+      return localStorage.getItem(this.tokenKey);
+    }
+    return null;
   }
 }
