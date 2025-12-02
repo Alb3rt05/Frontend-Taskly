@@ -1,43 +1,52 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root',
+})
 export class AuthService {
-  private baseUrl = 'http://localhost:8080/auth'; 
-  private tokenKey = 'taskly_access';
-  private refreshKey = 'taskly_refresh';
+  private apiUrl = 'http://localhost:8080/auth';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
+  // Login e salvataggio token
   async login(username: string, password: string): Promise<boolean> {
     try {
-      const response: any = await firstValueFrom(
-        this.http.post(`${this.baseUrl}/login`, { username, password })
+      const res = await lastValueFrom(
+        this.http.post<{ accessToken: string, refreshToken: string }>(
+          `${this.apiUrl}/login`,
+          { username, password },
+          {
+            headers: {
+              "Content-Type": "application/json"
+            }
+          }
+        )
       );
-
-      if (response?.accessToken) {
-        localStorage.setItem(this.tokenKey, response.accessToken);
-        localStorage.setItem(this.refreshKey, response.refreshToken);
-        return true;
-      }
-      return false;
-
-    } catch {
+      localStorage.setItem('accessToken', res.accessToken);
+      localStorage.setItem('refreshToken', res.refreshToken);
+      return true;
+    } catch (err) {
+      console.error('Login fallito', err);
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
       return false;
     }
   }
 
-  logout() {
-    localStorage.removeItem(this.tokenKey);
-    localStorage.removeItem(this.refreshKey);
+  // Logout
+  logout(): void {
+    localStorage.removeItem('accessToken');
   }
 
-  getToken() {
-    return localStorage.getItem(this.tokenKey);
+  // Recupero token
+  getToken(): string | null {
+    return localStorage.getItem('accessToken');
   }
 
-  isAuthenticated() {
-    return !!localStorage.getItem(this.tokenKey);
+  // Controllo autenticazione
+  isAuthenticated(): boolean {
+    return !!this.getToken();
   }
 }

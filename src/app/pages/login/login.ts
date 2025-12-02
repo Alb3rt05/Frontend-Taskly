@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
-export class LoginPage {
+export class Login {
 
   form: FormGroup;
   loading = false;
@@ -26,6 +26,10 @@ export class LoginPage {
       username: ['', Validators.required],
       password: ['', Validators.required]
     });
+    // redirect se già loggato
+    if (this.auth.isAuthenticated()) {
+      this.router.navigateByUrl('/home');
+    }
   }
 
   async onSubmit() {
@@ -39,8 +43,9 @@ export class LoginPage {
     const ok = await this.auth.login(username, password);
 
     if (ok) {
-      this.router.navigateByUrl('/');
-    } else {
+      this.router.navigateByUrl('/home'); // redirect a home protetta
+    }
+    else {
       this.error = 'Credenziali non valide';
     }
 

@@ -8,4 +8,4 @@ import { Component } from '@angular/core';
     <p>Qui mostrerai progetti, task, ecc.</p>
   `
 })
-export class HomePage {}
+export class Home {}
