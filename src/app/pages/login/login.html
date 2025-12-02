@@ -3,15 +3,18 @@
     <div class="login-container">
       <div class="login-card">
         <h2>Taskly</h2>
+
         <div class="login-intro">
           <div class="login-title">Sign in</div>
           <div class="login-subtitle">Accedi per continuare</div>
         </div>
+
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
-          <label>Email</label>
-          <input type="email" formControlName="email" />
-          <div class="error" *ngIf="form.get('email')?.invalid && form.get('email')?.touched">
-            Email non valida
+
+          <label>Username</label>
+          <input type="text" formControlName="username" />
+          <div class="error" *ngIf="form.get('username')?.invalid && form.get('username')?.touched">
+            Username obbligatorio
           </div>
 
           <label>Password</label>
@@ -29,6 +32,7 @@
       </div>
     </div>
   </section>
+
   <section class="right">
     <h5>Taskly Project</h5>
     <h2>Bentornato! Pronto a creare qualcosa di nuovo?</h2>

@@ -1,41 +1,49 @@
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../auth/auth.service';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../auth/auth.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   standalone: true,
   selector: 'app-login',
-  imports: [FormsModule],
-  template: `
-    <section style="max-width:400px;margin:auto;padding-top:4rem;">
-      <h2>Accedi</h2>
-
-      <form (ngSubmit)="submit()">
-        <input type="email" [(ngModel)]="email" name="email" placeholder="Email" required />
-        <br /><br />
-        <input type="password" [(ngModel)]="password" name="password" placeholder="Password" required />
-        <br /><br />
-
-        <button type="submit">Login</button>
-
-        @if (error) {
-          <p style="color:red;">Credenziali non valide</p>
-        }
-      </form>
-    </section>
-  `
+  imports: [ReactiveFormsModule, CommonModule],
+  templateUrl: './login.html',
+  styleUrls: ['./login.css']
 })
 export class LoginPage {
-  email = '';
-  password = '';
-  error = false;
 
-  constructor(private auth: AuthService, private router: Router) {}
+  form: FormGroup;
+  loading = false;
+  error: string | null = null;
 
-  async submit() {
-    const ok = await this.auth.login(this.email, this.password);
-    if (ok) this.router.navigateByUrl('/');
-    else this.error = true;
+  constructor(
+    private fb: FormBuilder,
+    private auth: AuthService,
+    private router: Router
+  ) {
+    this.form = this.fb.group({
+      username: ['', Validators.required],
+      password: ['', Validators.required]
+    });
+  }
+
+  async onSubmit() {
+    if (this.form.invalid) return;
+
+    this.loading = true;
+    this.error = null;
+
+    const { username, password } = this.form.value;
+
+    const ok = await this.auth.login(username, password);
+
+    if (ok) {
+      this.router.navigateByUrl('/');
+    } else {
+      this.error = 'Credenziali non valide';
+    }
+
+    this.loading = false;
   }
 }

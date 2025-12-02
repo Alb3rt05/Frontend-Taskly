@@ -1,40 +1,43 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
- 
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private baseUrl = 'http://localhost:8080/api';
-  private tokenKey = 'taskly_token';
- 
+  private baseUrl = 'http://localhost:8080/auth'; 
+  private tokenKey = 'taskly_access';
+  private refreshKey = 'taskly_refresh';
+
   constructor(private http: HttpClient) {}
- 
-  async login(email: string, password: string): Promise<boolean> {
+
+  async login(username: string, password: string): Promise<boolean> {
     try {
       const response: any = await firstValueFrom(
-        this.http.post(`${this.baseUrl}/auth/login`, { email, password })
+        this.http.post(`${this.baseUrl}/login`, { username, password })
       );
- 
-      if (response && response.token) {
-        localStorage.setItem(this.tokenKey, response.token);
+
+      if (response?.accessToken) {
+        localStorage.setItem(this.tokenKey, response.accessToken);
+        localStorage.setItem(this.refreshKey, response.refreshToken);
         return true;
       }
       return false;
+
     } catch {
       return false;
     }
   }
- 
+
   logout() {
     localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.refreshKey);
   }
- 
-  getToken(): string | null {
+
+  getToken() {
     return localStorage.getItem(this.tokenKey);
   }
- 
-  isAuthenticated(): boolean {
-    return !!this.getToken();
+
+  isAuthenticated() {
+    return !!localStorage.getItem(this.tokenKey);
   }
 }
-
