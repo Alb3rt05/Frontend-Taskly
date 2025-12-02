@@ -1,11 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { ProjectPhase } from '../../models/ProjectPhase';
 
 @Component({
   selector: 'app-project-content',
-  imports: [],
+  standalone: true,
   templateUrl: './project-content.html',
-  styleUrl: './project-content.css',
 })
 export class ProjectContent {
-
+  @Input() phase!: ProjectPhase;
 }

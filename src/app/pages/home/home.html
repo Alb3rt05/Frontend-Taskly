@@ -11,41 +11,24 @@
       </div>
     </section>
 
-    <app-project-card></app-project-card>
+    <div *ngIf="projects.length > 0" class="projects-sidebar">
+      <div class="projects-title">Tutti i progetti</div>
+      <ul>
+        <li *ngFor="let project of projects" class="project-item" [class.active]="project.active">
+          <app-project-card
+            [project]="project"
+            (edit)="editProject($event)"
+            (delete)="deleteProject($event)">
+          </app-project-card>
+        </li>
+        <li class="add-project" (click)="addProject()">+</li>
+      </ul>
+    </div>
 
-      <!-- <div class="projects-sidebar">
-        <div class="projects-title">Tutti i progetti</div>
-        <ul>
-          <li class="project-item active">First Project
-            <button class="action edit">✏️</button>
-            <button class="action delete">🗑️</button>
-          </li>
-          <li class="project-item">Second Project</li>
-          <li class="project-item">Work prj</li>
-          <li class="project-item">Freelance</li>
-          <li class="add-project">+</li>
-        </ul>
-      </div>
+    <p *ngIf="projects.length === 0">Nessun progetto trovato</p>
 
-      <div class="project-content">
-        <div class="tasks card">
-          <h3>Task Da fare</h3>
-          <ul>
-            <li>Task 1</li>
-            <li>Task 2</li>
-            <li>Task 3</li>
-            <li>Task 4</li>
-          </ul>
-        </div>
-
-        <div class="tasks card">
-          <h3>Task Fatte</h3>
-          <ul>
-            <li><s>Task 1</s></li>
-            <li><s>Task 2</s></li>
-          </ul>
-        </div>
-      </div> -->
-    
+    <div *ngIf="projectPhases.length > 0" class="project-content">
+      <app-project-content *ngFor="let phase of projectPhases" [phase]="phase"></app-project-content>
+    </div>
   </main>
 </div>

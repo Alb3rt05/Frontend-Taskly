@@ -1,11 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Project } from '../../models/project';
 
 @Component({
   selector: 'app-project-card',
-  imports: [],
+  standalone: true,
   templateUrl: './project-card.html',
-  styleUrl: './project-card.css',
 })
 export class ProjectCard {
-
+  @Input() project!: Project;
+  @Output() edit = new EventEmitter<Project>();
+  @Output() delete = new EventEmitter<Project>();
 }
