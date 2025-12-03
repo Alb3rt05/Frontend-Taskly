@@ -196,16 +196,12 @@ textarea {
   border-radius: 8px;
 }
 
-.user-info {
-  display: inline-flex;
-  gap: 10px;
-}
-
 .user-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-top: 1px solid var(--border);
+  margin: 0 8px;
 }
 
 .user {
@@ -239,31 +235,6 @@ textarea {
 
 .logout-btn:hover {
   color: var(--primary);
-}
-
-.menu {
-  padding: 1rem 1.5rem;
-}
-
-.menu-title {
-  color: var(--text-muted);
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  color: var(--text-main);
-  transition: background 0.2s ease;
-  cursor: pointer;
-}
-
-.menu-item:hover {
-  background: #f5f8ff;
 }
 
 /* ====== TYPOGRAPHY ====== */
