@@ -4,28 +4,6 @@
   background: var(--bg-soft);
 }
 
-/* ===== SIDEBAR ===== */
-.sidebar {
-  width: 260px;
-  background: var(--bg-light);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.sidebar-header {
-  padding: 2rem 1.5rem;
-}
-
-.sidebar-header h2.logo {
-  font-size: 1.75rem;
-  font-weight: 700;
-  background: linear-gradient(90deg, var(--primary), #A64BCF);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
 /* ===== MAIN CONTENT ===== */
 .profile-main {
   flex: 1;
@@ -118,16 +96,6 @@
 @media (max-width: 768px) {
   .profile-page {
     flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-    padding: 0.75rem 1rem;
   }
 
   .menu {
