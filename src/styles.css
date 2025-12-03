@@ -84,12 +84,6 @@ textarea {
   font-weight: 600;
 }
 
-.menu-item.active {
-  background: #f2f6ff;
-  border-left: 4px solid var(--primary);
-  color: var(--primary);
-}
-
 .projects-sidebar {
   background: var(--bg-light);
   border-radius: 12px;
@@ -220,7 +214,7 @@ textarea {
 }
 
 .user-details .email {
-  font-size: 0.85rem;
+  font-size: 12px;
   color: var(--text-muted);
 }
 
