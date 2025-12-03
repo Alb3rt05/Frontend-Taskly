@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
+import { Project } from '../models/project';
 
 @Injectable({
   providedIn: 'root',
@@ -33,6 +34,14 @@ export class AuthService {
       localStorage.removeItem('refreshToken');
       return false;
     }
+  }
+
+  async getUserProjects(): Promise<Project[]> {
+    return lastValueFrom(
+      this.http.get<Project[]>(`${this.apiUrl}/projects`, {
+        headers: { "Authorization": `Bearer ${localStorage.getItem('accessToken')}` }
+      })
+    );
   }
 
   // Logout
