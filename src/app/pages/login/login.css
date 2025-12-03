@@ -159,10 +159,6 @@ button:disabled {
   transition: transform 0.3s ease;
 }
 
-.right .image img:hover {
-  transform: scale(1.05);
-}
-
 /* ====== RESPONSIVE DESIGN ====== */
 @media (max-width: 1024px) {
   .Left,
