@@ -1,6 +1,15 @@
 export interface Task {
-  id: string;
+  id?: string;
+  _id?: any;            // backend può ritornare _id object
+  projectId?: string;
+  phaseId?: string;     
   title: string;
-  done: boolean;
-  // altri campi che arrivano dal backend
+  description?: string;
+  labels?: string[];
+  assignees?: string[]; // array di userId (hex)
+  dueDate?: string;
+  createdBy?: string;
+  status?: string;      
+  createdAt?: string;
+  updatedAt?: string;
 }

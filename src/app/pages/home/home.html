@@ -14,7 +14,7 @@
     <div *ngIf="projects.length > 0" class="projects-sidebar">
       <div class="projects-title">Tutti i progetti</div>
       <ul>
-        <li *ngFor="let project of projects" class="project-item" [class.active]="project.active">
+        <li *ngFor="let project of projects; let i = index" class="project-item" [class.active]="project.active" (click)="selectProject(i)">
           <app-project-card
             [project]="project"
             (edit)="editProject($event)"
