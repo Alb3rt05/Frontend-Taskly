@@ -6,7 +6,7 @@ import { lastValueFrom } from 'rxjs';
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/auth';
+  private apiUrl = 'https://hello-full-stack-be-f8ehd3erddgdfhhd.germanywestcentral-01.azurewebsites.net/auth';
 
   constructor(private http: HttpClient) { }
 
