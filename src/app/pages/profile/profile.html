@@ -5,14 +5,12 @@
   <!-- Main Content -->
   <main class="profile-main">
     <!-- Hero -->
-    <section class="hero card">
-      <div class="hero-text">
-        <p class="hero-sub">Gestisci profilo</p>
-        <h1>Gestisci i tuoi dati personali e i progetti che hai creato</h1>
-        <button class="btn">Salva modifiche</button>
-      </div>
-      <img src="/materials/star1.png">
-    </section>
+    <app-hero-card
+      subtitle="Gestisci profilo"
+      title="Gestisci i tuoi dati personali e i progetti che hai creato"
+      buttonText="Salva modifiche"
+      (saveProfile)="TODO()">
+    </app-hero-card>
 
     <!-- Content -->
     <section class="profile-content">

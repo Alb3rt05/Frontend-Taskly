@@ -48,8 +48,8 @@ export class Login {
         localStorage.setItem('token', this.auth.getToken() || '');
         // Salva utenza
         localStorage.setItem('user', JSON.stringify({
-          name: username,
-          email: username + '@example.com'
+          name: username, // questo è gia email per qualche motivo invece deve essere il nome
+          //DEVI AGGIUNGERE L'EMAIL
         }));
         // Reindirizza alla home
         this.router.navigateByUrl('/home');

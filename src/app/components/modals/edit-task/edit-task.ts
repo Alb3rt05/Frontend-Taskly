@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ProjectService } from '../../../services/project.service';
+import { TaskService } from '../../../services/task.service';
 import { Task } from '../../../models/task';
 import { Phase } from '../../../models/phase';
 
@@ -13,7 +13,7 @@ import { Phase } from '../../../models/phase';
   styleUrls: ['../add-project/add-project.css']
 })
 export class EditTask {
-  projectService = inject(ProjectService);
+  taskService = inject(TaskService);
 
   @Input() task!: Task;
   @Input() phases: Phase[] = [];
@@ -35,13 +35,19 @@ export class EditTask {
   async submit() {
     if (!this.title.trim() || !this.phaseId) return;
     try {
-      await this.projectService.updateTask({
-        ...this.task,
-        title: this.title.trim(),
-        description: this.description,
-        phaseId: this.phaseId,
-        dueDate: this.dueDate ? new Date(this.dueDate) : undefined,
-      });
+      await this.taskService.updateTask(
+        this.task.id!,
+        {
+          title: this.title.trim(),
+          description: this.description,
+          phaseId: this.phaseId,
+          dueDate: this.dueDate ? new Date(this.dueDate).toISOString() : undefined, // backend vuole 2025-12-04T10:22:00.000Z
+
+          projectId: this.task.projectId!,
+          status: this.task.status,
+          assigneeIds: this.task.assignees ?? []
+        }
+      );
       this.updated.emit();
       this.close.emit();
     } catch (err) {
