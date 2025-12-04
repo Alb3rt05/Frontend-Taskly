@@ -1,6 +1,6 @@
 {
   "/auth": {
-    "target": "http://localhost:8080",
+    "target": "https://hello-full-stack-be-f8ehd3erddgdfhhd.germanywestcentral-01.azurewebsites.net/auth/login",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"

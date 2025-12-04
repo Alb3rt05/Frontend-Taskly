@@ -9,7 +9,7 @@ import { Task } from '../models/task';
 })
 
 export class ProjectService {
-  private apiUrl = 'http://localhost:8080';
+  private apiUrl = 'https://hello-full-stack-be-f8ehd3erddgdfhhd.germanywestcentral-01.azurewebsites.net';
 
   constructor(private http: HttpClient) { }
 

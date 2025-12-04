@@ -29,7 +29,7 @@ export interface TaskRequest {
 })
 export class TaskService {
 
-  private apiUrl = 'http://localhost:8080'; // aggiorna con il backend
+  private apiUrl = 'https://hello-full-stack-be-f8ehd3erddgdfhhd.germanywestcentral-01.azurewebsites.net'; // aggiorna con il backend
 
   constructor(private http: HttpClient) { }
 
