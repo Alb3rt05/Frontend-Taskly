@@ -17,6 +17,7 @@ export class Sidebar {
 
   constructor(private router: Router) {
     const stored = localStorage.getItem('user');
+    console.log('Stored user:', stored);
     if (stored) {
       this.user = JSON.parse(stored);
     }

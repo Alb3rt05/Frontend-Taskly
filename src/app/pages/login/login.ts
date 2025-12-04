@@ -44,21 +44,40 @@ export class Login {
       const ok = await this.auth.login(username, password);
 
       if (ok) {
-        // Salva il token
-        localStorage.setItem('token', this.auth.getToken() || '');
-        // Salva utenza
+        const token = this.auth.getToken();
+        if (!token) {
+          this.error = 'Token non ricevuto';
+          return;
+        }
+
+        localStorage.setItem('token', token);
+
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const userId = payload.sub;
+
+        const profile = await fetch(`https://hello-full-stack-be-f8ehd3erddgdfhhd.germanywestcentral-01.azurewebsites.net/user/${userId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }).then(r => {
+          if (!r.ok) throw new Error('Errore caricamento profilo');
+          return r.json();
+        });
+
         localStorage.setItem('user', JSON.stringify({
-          name: username, // questo è gia email per qualche motivo invece deve essere il nome
-          //DEVI AGGIUNGERE L'EMAIL
+          id: userId,
+          email: profile.username,
+          name: profile.displayName
         }));
-        // Reindirizza alla home
+
         this.router.navigateByUrl('/home');
+
       } else {
         this.error = 'Credenziali non valide';
       }
-    } catch(err) {
-    this.error = 'Errore durante il login';
-    console.error(err);
+    } catch (err) {
+      console.error(err);
+      this.error = 'Errore durante il login';
     } finally {
       this.loading = false;
     }
