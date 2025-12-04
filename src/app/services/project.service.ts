@@ -9,6 +9,9 @@ import { Task } from '../models/task';
 })
 
 export class ProjectService {
+  deleteTask(taskId: string) {
+    throw new Error('Method not implemented.');
+  }
   private apiUrl = 'https://hello-full-stack-be-f8ehd3erddgdfhhd.germanywestcentral-01.azurewebsites.net';
 
   constructor(private http: HttpClient) { }

@@ -6,6 +6,11 @@
     <li *ngFor="let task of phase.tasks">
       <div class="task">
         <div class="task-title">{{ task.title }}</div>
+        
+        <button (click)="editTask.emit(task)">Modifica</button>
+        <button (click)="deleteTask.emit(task)">Elimina</button>
+        <button (click)="addTask.emit(phase.phaseId)">Aggiungi Task</button>
+
         <div class="task-meta">
           <small *ngIf="task.assignees?.length">Assegnati: {{ task.assignees?.length }}</small>
           <small *ngIf="task.dueDate">• scadenza: {{ task.dueDate | date:'short' }}</small>
