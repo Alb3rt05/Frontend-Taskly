@@ -12,6 +12,11 @@ import { Project } from '../../models/project';
 import { Task } from '../../models/task';
 import { ProjectPhase } from '../../models/projectPhase';
 import { Phase } from '../../models/phase';
+// Modals
+import { AddProject } from '../../components/modals/add-project/add-project';
+import { AddTask } from '../../components/modals/add-task/add-task';
+import { EditTask } from '../../components/modals/edit-task/edit-task';
+
 
 @Component({
   selector: 'app-home',
@@ -22,6 +27,9 @@ import { Phase } from '../../models/phase';
     HeroCard,
     ProjectCard,
     ProjectContent,
+    AddProject,
+    AddTask,
+    EditTask
   ],
   templateUrl: './home.html',
   styleUrls: ['./home.css']
@@ -31,6 +39,13 @@ export class Home implements OnInit {
   projects: Project[] = [];
   projectPhases: ProjectPhase[] = [];
   selectedProjectIndex = 0;
+
+  // Per le modals
+  showAddProjectModal = false;
+  showAddTaskModal = false;
+  showEditTaskModal = false;
+  selectedPhaseForTask: string | null = null;
+  selectedTaskForEdit: Task | null = null;
 
   ngOnInit(): void {
     this.loadProjects();
@@ -82,11 +97,17 @@ export class Home implements OnInit {
       // ordina per order se presente
       phases.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-      this.projectPhases = phases.map(phase => {
+      // create projectPhases array for UI
+      this.projectPhases = phases.map(phase => { // filtra tasks per phase
         const phaseTasks = normalizedTasks.filter(t => (t.phaseId ?? t.phaseId) === phase.id);
         const todo = phaseTasks.filter(t => !(t.status && t.status.toLowerCase().includes('done')));
         const done = phaseTasks.filter(t => (t.status && t.status.toLowerCase().includes('done')));
-        return { name: phase.title, phaseId: phase.id, tasks: todo };
+        return { 
+          name: phase.title, 
+          phaseId: phase.id, 
+          tasks: todo || [], // sempre array
+          tasksDone: done || []
+        };
       });
 
     } catch (err) {
@@ -95,23 +116,33 @@ export class Home implements OnInit {
     }
   }
 
-  async addProject() {
-    const title = prompt('Titolo progetto');
-    if (!title) return;
+  addProject() {
+    this.openAddProjectModal();
+  }
+
+  async editProject(project: Project) {
+    const newTitle = prompt('Modifica titolo progetto', project.title);
+    if (!newTitle) return;
     try {
-      await this.projectService.createProject(title);
+      const projectId = project.id ?? project._id?.$oid ?? project._id;
+      if (!projectId) return;
+      await this.projectService.updateProject({ ...project, title: newTitle });
       await this.loadProjects();
     } catch (err) {
-      console.error('Errore creando progetto:', err);
+      console.error('Errore modificando progetto:', err);
     }
   }
 
-  editProject(project: Project) {
-    console.log('Edit project', project);
-  }
-
-  deleteProject(project: Project) {
-    console.log('Delete project', project);
+  async deleteProject(project: Project) {
+    if (!confirm(`Eliminare il progetto "${project.title}"?`)) return;
+    try {
+      const projectId = project.id ?? project._id?.$oid ?? project._id;
+      if (!projectId) return;
+      await this.projectService.deleteProject(projectId);
+      await this.loadProjects();
+    } catch (err) {
+      console.error('Errore eliminando progetto:', err);
+    }
   }
 
   // gestore click su project item: carica dettagli del progetto selezionato
@@ -120,4 +151,39 @@ export class Home implements OnInit {
     this.selectedProjectIndex = i;
     await this.loadProjectDetails(i);
   }
+
+  /*----------------------------
+  Per le Modals
+  ------------------------------ */
+  // ---------- PROGETTO ----------
+  openAddProjectModal() {
+    this.showAddProjectModal = true;
+  }
+
+  closeAddProjectModal(created?: boolean) {
+    this.showAddProjectModal = false;
+    if (created) this.loadProjects();
+  }
+
+  // ---------- TASK ----------
+  openAddTaskModal(phaseId: string) {
+    this.selectedPhaseForTask = phaseId;
+    this.showAddTaskModal = true;
+  }
+
+  closeAddTaskModal(taskCreated?: boolean) {
+    this.showAddTaskModal = false;
+    if (taskCreated) this.loadProjectDetails(this.selectedProjectIndex);
+  }
+
+  openEditTaskModal(task: Task) {
+    this.selectedTaskForEdit = task;
+    this.showEditTaskModal = true;
+  }
+
+  closeEditTaskModal(taskUpdated?: boolean) {
+    this.showEditTaskModal = false;
+    if (taskUpdated) this.loadProjectDetails(this.selectedProjectIndex);
+  }
+
 }

@@ -2,7 +2,26 @@
   <app-sidebar></app-sidebar>
 
   <main class="main">
-    <app-hero-card></app-hero-card>
+
+    <!-- Add Project Modal -->
+    <app-add-project *ngIf="showAddProjectModal" (close)="closeAddProjectModal()"
+      (created)="closeAddProjectModal(true)">
+    </app-add-project>
+
+    <!-- Add Task Modal -->
+    <app-add-task *ngIf="showAddTaskModal"
+      [projectId]="projects[selectedProjectIndex]?.id ?? projects[selectedProjectIndex]?._id?.$oid"
+      [phases]="projects[selectedProjectIndex]?.phases || []" (close)="closeAddTaskModal()"
+      (created)="closeAddTaskModal(true)">
+    </app-add-task>
+
+    <!-- Edit Task Modal -->
+    <app-edit-task *ngIf="showEditTaskModal && selectedTaskForEdit" [task]="selectedTaskForEdit"
+      [phases]="projects[selectedProjectIndex]?.phases || []" (close)="closeEditTaskModal()"
+      (updated)="closeEditTaskModal(true)">
+    </app-edit-task>
+
+    <app-hero-card (createProject)="openAddProjectModal()"></app-hero-card>
 
     <section class="projects-header">
       <div>
@@ -14,11 +33,9 @@
     <div *ngIf="projects.length > 0" class="projects-sidebar">
       <div class="projects-title">Tutti i progetti</div>
       <ul>
-        <li *ngFor="let project of projects; let i = index" class="project-item" [class.active]="project.active" (click)="selectProject(i)">
-          <app-project-card
-            [project]="project"
-            (edit)="editProject($event)"
-            (delete)="deleteProject($event)">
+        <li *ngFor="let project of projects; let i = index" class="project-item" [class.active]="project.active"
+          (click)="selectProject(i)">
+          <app-project-card [project]="project" (edit)="editProject($event)" (delete)="deleteProject($event)">
           </app-project-card>
         </li>
         <li class="add-project" (click)="addProject()">+</li>

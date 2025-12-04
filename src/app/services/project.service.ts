@@ -39,10 +39,39 @@ export class ProjectService {
     return lastValueFrom(this.http.get<Project[]>(url));
   }
 
+  // Crea progetto
   async createProject(title: string) {
     const url = `${this.apiUrl}/projects`;
     // Il backend si aspetta ProjectRequest (title + opzionali)
     return lastValueFrom(this.http.post(url, { title }));
+  }
+
+  // Update progetto
+  async updateProject(project: Project): Promise<any> {
+    const projectId = project.id ?? project._id?.$oid ?? project._id;
+    if (!projectId) throw new Error('Project id non presente');
+    const url = `${this.apiUrl}/projects/${projectId}`;
+    return lastValueFrom(this.http.put(url, project));
+  }
+
+  // Elimina progetto
+  async deleteProject(projectId: string): Promise<any> {
+    const url = `${this.apiUrl}/projects/${projectId}`;
+    return lastValueFrom(this.http.delete(url));
+  }
+
+  // Crea task
+  async createTask(taskData: any): Promise<any> {
+    const url = `${this.apiUrl}/tasks`;
+    return lastValueFrom(this.http.post(url, taskData));
+  }
+
+  // Aggiorna task
+  async updateTask(task: any): Promise<any> {
+    const taskId = task.id ?? task._id?.$oid ?? task._id;
+    if (!taskId) throw new Error('Task id non presente');
+    const url = `${this.apiUrl}/tasks/${taskId}`;
+    return lastValueFrom(this.http.put(url, task));
   }
 
   async getTasksForProject(projectId: string | null): Promise<Task[]> {

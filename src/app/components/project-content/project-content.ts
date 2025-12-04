@@ -10,9 +10,8 @@ import { Task } from '../../models/task';
   templateUrl: './project-content.html',
 })
 export class ProjectContent {
-  @Input() phase!: ProjectPhase;
+  @Input() phase: ProjectPhase = { name: '', tasks: [], tasksDone: [] };
 
-  // helper per visualizzare titolo 
   taskTitle(t: Task) {
     return t.title || '(no title)';
   }
