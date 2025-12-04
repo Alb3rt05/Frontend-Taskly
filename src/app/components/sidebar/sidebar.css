@@ -6,6 +6,11 @@
   justify-content: space-between;
   height: 100vh;
   padding: 20px 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  z-index: 100;
 }
 
 .sidebar-header {
@@ -131,12 +136,13 @@
 
 .menu-item {
   display: flex;
-  width: 260px;
+  width: 100%;
   padding: 0.5rem 1rem;
   gap: 10px;
   border-radius: 8px;
   user-select: none;
   color: var(--text-muted);
+  box-sizing: border-box;
 }
 
 .menu-item:hover {
