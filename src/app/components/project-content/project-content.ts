@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProjectPhase } from '../../models/projectPhase';
 import { Task } from '../../models/task';
@@ -11,6 +11,9 @@ import { Task } from '../../models/task';
 })
 export class ProjectContent {
   @Input() phase: ProjectPhase = { name: '', tasks: [], tasksDone: [] };
+  @Output() editTask = new EventEmitter<Task>();
+  @Output() deleteTask = new EventEmitter<Task>();
+  @Output() addTask = new EventEmitter<string>();
 
   taskTitle(t: Task) {
     return t.title || '(no title)';

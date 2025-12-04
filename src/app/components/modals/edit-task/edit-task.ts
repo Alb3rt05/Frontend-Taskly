@@ -1,9 +1,9 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TaskService } from '../../../services/task.service';
+import { TaskService, TaskRequest, TaskResponse } from '../../../services/task.service';
 import { Task } from '../../../models/task';
-import { Phase } from '../../../models/phase';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-edit-task',
@@ -16,42 +16,41 @@ export class EditTask {
   taskService = inject(TaskService);
 
   @Input() task!: Task;
-  @Input() phases: Phase[] = [];
+  @Input() phases: { id: string; title: string }[] = [];
   @Output() close = new EventEmitter<void>();
   @Output() updated = new EventEmitter<void>();
 
-  title!: string;
-  description!: string;
-  phaseId!: string;
-  dueDate!: string;
+  title = '';
+  description = '';
+  phaseId = '';
+  dueDate = '';
 
   ngOnInit() {
     this.title = this.task.title;
     this.description = this.task.description || '';
-    this.phaseId = this.task.phaseId || '';
-    this.dueDate = this.task.dueDate ? new Date(this.task.dueDate).toISOString().split('T')[0] : '';
+    this.phaseId = this.task.phaseId!;
+    this.dueDate = this.task.dueDate ? this.task.dueDate.split('T')[0] : '';
   }
 
   async submit() {
     if (!this.title.trim() || !this.phaseId) return;
-    try {
-      await this.taskService.updateTask(
-        this.task.id!,
-        {
-          title: this.title.trim(),
-          description: this.description,
-          phaseId: this.phaseId,
-          dueDate: this.dueDate ? new Date(this.dueDate).toISOString() : undefined, // backend vuole 2025-12-04T10:22:00.000Z
 
-          projectId: this.task.projectId!,
-          status: this.task.status,
-          assigneeIds: this.task.assignees ?? []
-        }
-      );
+    const taskReq: TaskRequest = {
+      projectId: this.task.projectId!,
+      phaseId: this.phaseId,
+      title: this.title.trim(),
+      description: this.description,
+      dueDate: this.dueDate,
+      status: this.task.status,
+      assigneeIds: this.task.assignees || []
+    };
+
+    try {
+      await lastValueFrom(this.taskService.updateTask(this.task.id!, taskReq));
       this.updated.emit();
       this.close.emit();
     } catch (err) {
-      console.error('Errore modificando task', err);
+      console.error('Errore aggiornando task', err);
     }
   }
 

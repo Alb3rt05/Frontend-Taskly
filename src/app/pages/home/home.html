@@ -3,30 +3,13 @@
 
   <main class="main">
 
-    <!-- Add Project Modal -->
-    <app-add-project *ngIf="showAddProjectModal" (close)="closeAddProjectModal()"
-      (created)="closeAddProjectModal(true)">
-    </app-add-project>
+    <!-- Modals -->
+    <app-add-project *ngIf="showAddProjectModal" (close)="closeAddProjectModal()" (created)="closeAddProjectModal(true)"></app-add-project>
+    <app-edit-project *ngIf="showEditProjectModal" [project]="selectedProjectForEdit!" (close)="closeEditProjectModal()" (updated)="closeEditProjectModal(true)"></app-edit-project>
+    <app-add-task *ngIf="showAddTaskModal" [projectId]="projects[selectedProjectIndex]?.id ?? projects[selectedProjectIndex]?._id?.$oid" [phases]="projects[selectedProjectIndex]?.phases || []" (close)="closeAddTaskModal()" (created)="closeAddTaskModal(true)"></app-add-task>
+    <app-edit-task *ngIf="showEditTaskModal && selectedTaskForEdit" [task]="selectedTaskForEdit" [phases]="projects[selectedProjectIndex]?.phases || []" (close)="closeEditTaskModal()" (updated)="closeEditTaskModal(true)"></app-edit-task>
 
-    <!-- Add Task Modal -->
-    <app-add-task *ngIf="showAddTaskModal"
-      [projectId]="projects[selectedProjectIndex]?.id ?? projects[selectedProjectIndex]?._id?.$oid"
-      [phases]="projects[selectedProjectIndex]?.phases || []" (close)="closeAddTaskModal()"
-      (created)="closeAddTaskModal(true)">
-    </app-add-task>
-
-    <!-- Edit Task Modal -->
-    <app-edit-task *ngIf="showEditTaskModal && selectedTaskForEdit" [task]="selectedTaskForEdit"
-      [phases]="projects[selectedProjectIndex]?.phases || []" (close)="closeEditTaskModal()"
-      (updated)="closeEditTaskModal(true)">
-    </app-edit-task>
-
-    <app-hero-card
-      subtitle="Crea Progetto"
-      title="Inizia ora e dai vita al tuo nuovo Progetto"
-      buttonText="Crea Progetto"
-      (createProject)="openAddProjectModal()">
-    </app-hero-card>
+    <app-hero-card subtitle="Crea Progetto" title="Inizia ora e dai vita al tuo nuovo Progetto" buttonText="Crea Progetto" (createProject)="openAddProjectModal()"></app-hero-card>
 
     <section class="projects-header">
       <div>
@@ -38,19 +21,17 @@
     <div *ngIf="projects.length > 0" class="projects-sidebar">
       <div class="projects-title">Tutti i progetti</div>
       <ul>
-        <li *ngFor="let project of projects; let i = index" class="project-item" [class.active]="project.active"
-          (click)="selectProject(i)">
-          <app-project-card [project]="project" (edit)="editProject($event)" (delete)="deleteProject($event)">
-          </app-project-card>
+        <li *ngFor="let project of projects; let i = index" class="project-item" [class.active]="project.active" (click)="selectProject(i)">
+          <app-project-card [project]="project" (edit)="editProject($event)" (delete)="deleteProject($event)"></app-project-card>
         </li>
-        <li class="add-project" (click)="addProject()">+</li>
+        <li class="add-project" (click)="openAddProjectModal()">+</li>
       </ul>
     </div>
 
     <p *ngIf="projects.length === 0">Nessun progetto trovato</p>
 
     <div *ngIf="projectPhases.length > 0" class="project-content">
-      <app-project-content *ngFor="let phase of projectPhases" [phase]="phase"></app-project-content>
+      <app-project-content *ngFor="let phase of projectPhases" [phase]="phase" (editTask)="openEditTaskModal($event)" (deleteTask)="deleteTask($event)" (addTask)="openAddTaskModal(phase.phaseId!)"></app-project-content>
     </div>
   </main>
 </div>

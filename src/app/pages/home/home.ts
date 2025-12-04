@@ -16,7 +16,9 @@ import { Phase } from '../../models/phase';
 import { AddProject } from '../../components/modals/add-project/add-project';
 import { AddTask } from '../../components/modals/add-task/add-task';
 import { EditTask } from '../../components/modals/edit-task/edit-task';
-
+import { EditProject } from '../../components/modals/edit-project/edit-project';
+import { lastValueFrom } from 'rxjs';
+import { TaskService } from '../../services/task.service';
 
 @Component({
   selector: 'app-home',
@@ -29,7 +31,8 @@ import { EditTask } from '../../components/modals/edit-task/edit-task';
     ProjectContent,
     AddProject,
     AddTask,
-    EditTask
+    EditTask,
+    EditProject
   ],
   templateUrl: './home.html',
   styleUrls: ['./home.css']
@@ -40,12 +43,17 @@ export class Home implements OnInit {
   projectPhases: ProjectPhase[] = [];
   selectedProjectIndex = 0;
 
-  // Per le modals
+  // Modals
   showAddProjectModal = false;
+  showEditProjectModal = false;
+  selectedProjectForEdit: Project | null = null;
+
   showAddTaskModal = false;
   showEditTaskModal = false;
   selectedPhaseForTask: string | null = null;
   selectedTaskForEdit: Task | null = null;
+  selectedProjectForDelete: Project | null = null;
+  showDeleteProjectModal: boolean = false;
 
   ngOnInit(): void {
     this.loadProjects();
@@ -53,18 +61,13 @@ export class Home implements OnInit {
 
   async loadProjects() {
     try {
-      this.projects = await this.projectService.getUserProjects();
-
-      if (this.projects.length > 0) {
-        // seleziona il primo progetto come attivo (se non hai logica di selezione)
-        this.projects = this.projects.map((p, idx) => ({ ...p, active: idx === 0 }));
-
-        // carica tasks per il progetto selezionato
-        await this.loadProjectDetails(0);
-      } else {
-        this.projectPhases = [];
-      }
-
+      const rawProjects = await this.projectService.getUserProjects();
+      this.projects = rawProjects.map((p, idx) => ({
+        ...p,
+        active: idx === 0,
+        id: p.id ?? p._id?.$oid ?? p._id // <- Normalizziamo ID subito
+      }));
+      if (this.projects.length > 0) await this.loadProjectDetails(0);
     } catch (err) {
       console.error('Errore caricando progetti:', err);
     }
@@ -73,39 +76,29 @@ export class Home implements OnInit {
   async loadProjectDetails(index: number) {
     const project = this.projects[index];
     if (!project) return;
-    try {
-      const projectId =
-        project.id ??
-        project._id?.$oid ??   // <--- corretto per Mongo
-        project._id ??         // fallback
-        null;
 
-      const tasks = projectId
-        ? await this.projectService.getTasksForProject(projectId)
-        : [];
-      // normalizza taskId e phaseId per comodità
+    try {
+      const projectId = project.id ?? project._id?.$oid ?? project._id ?? null;
+      const tasks = projectId ? await this.projectService.getTasksForProject(projectId) : [];
+
       const normalizedTasks: Task[] = (tasks || []).map(t => {
         const id = (t as any)._id ? ((t as any)._id.$oid || (t as any)._id) : (t as any).id;
-        return { ...t, id: id };
+        return { ...t, id };
       });
 
-      // attach tasks to project (so ProjectCard can use if needed)
       project.tasks = normalizedTasks;
 
-      // create phases array for UI
       const phases: Phase[] = project.phases || [];
-      // ordina per order se presente
       phases.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-      // create projectPhases array for UI
-      this.projectPhases = phases.map(phase => { // filtra tasks per phase
-        const phaseTasks = normalizedTasks.filter(t => (t.phaseId ?? t.phaseId) === phase.id);
-        const todo = phaseTasks.filter(t => !(t.status && t.status.toLowerCase().includes('done')));
-        const done = phaseTasks.filter(t => (t.status && t.status.toLowerCase().includes('done')));
-        return { 
-          name: phase.title, 
-          phaseId: phase.id, 
-          tasks: todo || [], // sempre array
+      this.projectPhases = phases.map(phase => {
+        const phaseTasks = normalizedTasks.filter(t => t.phaseId === phase.id);
+        const todo = phaseTasks.filter(t => !(t.status?.toLowerCase().includes('done')));
+        const done = phaseTasks.filter(t => t.status?.toLowerCase().includes('done'));
+        return {
+          name: phase.title,
+          phaseId: phase.id,
+          tasks: todo || [],
           tasksDone: done || []
         };
       });
@@ -116,28 +109,50 @@ export class Home implements OnInit {
     }
   }
 
-  addProject() {
-    this.openAddProjectModal();
+  private getEntityId(entity: any): string | null {
+    if (!entity) return null;
+    if (typeof entity.id === 'string') return entity.id;
+    if (entity._id) {
+      if (typeof entity._id === 'string') return entity._id;
+      if (entity._id.$oid) return entity._id.$oid;
+      if (typeof entity._id.toString === 'function') return entity._id.toString();
+    }
+    return null;
   }
 
-  async editProject(project: Project) {
-    const newTitle = prompt('Modifica titolo progetto', project.title);
-    if (!newTitle) return;
-    try {
-      const projectId = project.id ?? project._id?.$oid ?? project._id;
-      if (!projectId) return;
-      await this.projectService.updateProject({ ...project, title: newTitle });
-      await this.loadProjects();
-    } catch (err) {
-      console.error('Errore modificando progetto:', err);
-    }
+  // Project
+  openAddProjectModal() { 
+    this.showAddProjectModal = true; 
+  }
+  closeAddProjectModal(created?: boolean) {
+    this.showAddProjectModal = false;
+    if (created) this.loadProjects();
+  }
+  openDeleteProjectModal(project: Project) {
+    this.selectedProjectForDelete = project;
+    this.showDeleteProjectModal = true;
+  }
+  closeDeleteProjectModal(deleted?: boolean) {
+    this.showDeleteProjectModal = false;
+    this.selectedProjectForDelete = null;
+    if (deleted) this.loadProjects();
+  }
+  editProject(project: Project) {
+    this.selectedProjectForEdit = project;
+    this.showEditProjectModal = true;
+  }
+  closeEditProjectModal(updated?: boolean) {
+    this.showEditProjectModal = false;
+    this.selectedProjectForEdit = null;
+    if (updated) this.loadProjects();
   }
 
   async deleteProject(project: Project) {
     if (!confirm(`Eliminare il progetto "${project.title}"?`)) return;
+
     try {
-      const projectId = project.id ?? project._id?.$oid ?? project._id;
-      if (!projectId) return;
+      const projectId = this.getEntityId(project);
+      if (!projectId) throw new Error('ID progetto non trovato');
       await this.projectService.deleteProject(projectId);
       await this.loadProjects();
     } catch (err) {
@@ -145,27 +160,13 @@ export class Home implements OnInit {
     }
   }
 
-  // gestore click su project item: carica dettagli del progetto selezionato
-  async selectProject(i: number) {
+  selectProject(i: number) {
     this.projects = this.projects.map((p, idx) => ({ ...p, active: idx === i }));
     this.selectedProjectIndex = i;
-    await this.loadProjectDetails(i);
+    this.loadProjectDetails(i);
   }
 
-  /*----------------------------
-  Per le Modals
-  ------------------------------ */
-  // ---------- PROGETTO ----------
-  openAddProjectModal() {
-    this.showAddProjectModal = true;
-  }
-
-  closeAddProjectModal(created?: boolean) {
-    this.showAddProjectModal = false;
-    if (created) this.loadProjects();
-  }
-
-  // ---------- TASK ----------
+  // Task
   openAddTaskModal(phaseId: string) {
     this.selectedPhaseForTask = phaseId;
     this.showAddTaskModal = true;
@@ -186,4 +187,14 @@ export class Home implements OnInit {
     if (taskUpdated) this.loadProjectDetails(this.selectedProjectIndex);
   }
 
+  taskService = inject(TaskService);
+  async deleteTask(task: Task) {
+    if (!confirm(`Eliminare il task "${task.title}"?`)) return;
+    try {
+      await lastValueFrom(this.taskService.deleteTask(task.id!));
+      await this.loadProjectDetails(this.selectedProjectIndex);
+    } catch (err) {
+      console.error('Errore eliminando task:', err);
+    }
+  }
 }
