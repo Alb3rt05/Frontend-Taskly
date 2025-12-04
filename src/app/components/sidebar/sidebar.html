@@ -1,6 +1,5 @@
 <aside class="sidebar">
   <div class="container-header">
-
     <div class="sidebar-header">
       <h2 class="logo">Taskly</h2>
     </div>
@@ -8,37 +7,29 @@
     <nav class="menu">
       <p class="menu-title">Menu</p>
       <ul>
-
         <li class="menu-item" [class.active]="isActive('/home')" (click)="goHome()">
-          <span class="icon"><img src="/icons/home.svg"></span>
+          <span class="icon"><img src="/icons/home.svg" /></span>
           <span>Home</span>
         </li>
 
         <li class="menu-item" [class.active]="isActive('/profile')" (click)="goProfile()">
-          <span class="icon"><img src="/icons/profile.svg"></span>
+          <span class="icon"><img src="/icons/profile.svg" /></span>
           <span>Profilo</span>
         </li>
-
       </ul>
     </nav>
   </div>
 
   <div class="user-container">
     <div class="user-info">
-      <div class="user">
-
-        <div class="avatar">{{ avatarLetter }}</div>
-        <div class="user-details">
-
-          <span class="name">{{ user.name }}</span>
-          <span class="email">{{ user.email }}</span>
-
-          <button class="logout-btn" (click)="logout()">
-            <img src="/materials/logout.png">
-          </button>
-        </div>
+      <div class="avatar">{{ avatarLetter }}</div>
+      <div class="user-details">
+        <span class="name">{{ user.name }}</span>
+        <span class="email">{{ user.email }}</span>
       </div>
+      <button class="logout-btn" (click)="logout()">
+        <img src="/materials/logout.png" />
+      </button>
     </div>
   </div>
-
 </aside>
