@@ -14,7 +14,7 @@
           "builder": "@angular/build:application",
           "options": {
             "browser": "src/main.ts",
-            "outputPath": "dist/Taskly",
+            "outputPath": "dist/Taskly/browser",
             "polyfills": [
               "zone.js"
             ],
