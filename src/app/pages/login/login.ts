@@ -17,6 +17,13 @@ export class Login {
   loading = false;
   error: string | null = null;
 
+  //Registrazione
+  showRegister = false;
+  registerForm: FormGroup;
+  loadingRegister = false;
+  registerError: string | null = null;
+
+  // Costruttore di Login
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
@@ -24,7 +31,13 @@ export class Login {
   ) {
     this.form = this.fb.group({
       username: ['', Validators.required],
-      password: ['', Validators.required]
+      password: ['', Validators.required],
+    });
+    // Registrazione form
+    this.registerForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      username: ['', [Validators.required]],
+      password: ['', [Validators.required]]
     });
     // redirect se già loggato
     if (this.auth.isAuthenticated()) {
@@ -82,4 +95,26 @@ export class Login {
       this.loading = false;
     }
   }
+
+  // Registrazione
+  async onRegister() {
+    if (this.registerForm.invalid) return;
+
+    this.loadingRegister = true;
+    this.registerError = null;
+
+    const { email, username, password } = this.registerForm.value;
+
+    try {
+      await this.auth.register(email, username, password);
+      // registrazione ok -> chiudi overlay
+      this.showRegister = false;
+      this.registerForm.reset();
+    } catch (err) {
+      this.registerError = 'Errore durante la registrazione';
+    } finally {
+      this.loadingRegister = false;
+    }
+  }
+
 }
