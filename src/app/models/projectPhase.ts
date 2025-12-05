@@ -2,7 +2,9 @@ import { Task } from './task';
 
 export interface ProjectPhase {
   name: string;
+  active?: boolean;
+  order?:  number | undefined;
   phaseId?: string;
-  tasks: Task[];      // da fare
-  tasksDone: Task[]; // complete
+  tasks: Task[] | undefined;      // da fare
+  tasksDone: Task[] | undefined; // complete
 }

@@ -1,7 +1,6 @@
 export interface Task {
-  id?: string;
-  _id?: any;            // backend può ritornare _id object
-  projectId?: string;
+  id?: string;         // Normalizzato DTO Backend  
+  _id?: any;           // momentaneo per poter lavorare con l'API  projectId?: string;
   phaseId?: string;     
   title: string;
   description?: string;

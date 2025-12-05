@@ -1,15 +1,8 @@
 <div class="project-card" [class.active]="project.active">
+  <!-- Project Title -->
   <div class="project-title">{{ project.title }}</div>
 
-  <div class="project-actions">
-    <button class="edit-btn" (click)="edit.emit(project)" title="Modifica progetto">
-      <img src="/icons/addPeople.svg" alt="Edit">
-    </button>
-    <button class="delete-btn" (click)="delete.emit(project)" title="Elimina progetto">
-      <img src="/icons/deleteProject.svg" alt="Delete">
-    </button>
-  </div>
-
+  <!-- Project details -->
   <div class="project-meta">
     <small>Creato il: {{ project.createdAt | date:'short' }}</small>
     <small *ngIf="project.members?.length">Membri: {{ project.members?.length }}</small>
