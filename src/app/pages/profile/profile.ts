@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractContro
 import { CommonModule } from '@angular/common';
 import { Sidebar } from "../../components/sidebar/sidebar";
 import { HeroCard } from '../../components/hero-card/hero-card';
+import { UserService } from '../../services/user.service';
 
 @Component({
   standalone: true,
@@ -17,7 +18,8 @@ export class Profile {
   emailForm: FormGroup;
   passwordForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private userService: UserService) {
+
     this.nameForm = this.fb.group({
       displayName: ['', [Validators.required, this.noWhitespaceValidator]]
     });
@@ -28,7 +30,7 @@ export class Profile {
 
     this.passwordForm = this.fb.group({
       passwordCurrent: ['', Validators.required],
-      passwordNew: ['', [Validators.required]]
+      passwordNew: ['', Validators.required]
     }, { validators: this.passwordsNotEqual });
   }
 
@@ -39,35 +41,71 @@ export class Profile {
 
   passwordsNotEqual(group: AbstractControl) {
     const current = group.get('passwordCurrent')?.value;
-    const newPass = group.get('passwordNew')?.value;
-    return (current && newPass && current === newPass) ? { samePassword: true } : null;
+    const next = group.get('passwordNew')?.value;
+
+    return current === next ? { samePassword: true } : null;
   }
 
   saveName() {
-    if (this.nameForm.valid) {
-      console.log('Nome utente aggiornato:', this.nameForm.value.displayName);
-      // TODO: chiamata al service per aggiornare il nome
-    } else {
+    if (this.nameForm.invalid) {
       this.nameForm.markAllAsTouched();
+      return;
     }
+
+    this.userService.updateProfile({
+      displayName: this.nameForm.value.displayName
+    }).subscribe(res => {
+      console.log("Nome aggiornato:", res);
+      alert('Nome aggiornato con successo');
+
+      const u = JSON.parse(localStorage.getItem('user')!);
+      u.name = res.displayName;
+      localStorage.setItem('user', JSON.stringify(u));
+    });
   }
 
   saveEmail() {
-    if (this.emailForm.valid) {
-      console.log('Email aggiornata:', this.emailForm.value.email);
-      // TODO: chiamata al service per aggiornare l'email
-    } else {
+    if (this.emailForm.invalid) {
       this.emailForm.markAllAsTouched();
+      return;
     }
+
+    this.userService.updateProfile({
+      username: this.emailForm.value.email
+    }).subscribe(res => {
+      console.log("Email aggiornata:", res);
+      alert('Email aggiornata con successo');
+
+      const user = JSON.parse(localStorage.getItem('user')!);
+      user.email = res.username;
+      localStorage.setItem('user', JSON.stringify(user));
+    });
   }
 
   savePassword() {
-    if (this.passwordForm.valid) {
-      console.log('Password aggiornata:', this.passwordForm.value.passwordNew);
-      // TODO: chiamata al service per aggiornare la password
-      this.passwordForm.reset();
-    } else {
+    if (this.passwordForm.invalid) {
       this.passwordForm.markAllAsTouched();
+      return;
     }
+
+    this.userService.updateProfile({
+      passwordCurrent: this.passwordForm.value.passwordCurrent,
+      passwordNew: this.passwordForm.value.passwordNew
+    }).subscribe({
+      next: res => {
+        console.log("Password aggiornata:", res);
+        this.passwordForm.reset();
+        alert('Password aggiornata con successo');
+      },
+      error: err => {
+        console.error('Errore cambio password', err);
+        if (err?.status === 401) {
+          alert('La password attuale non è corretta.');
+        } else {
+          alert('Errore durante il cambio password. Riprova.');
+        }
+      }
+    });
   }
+
 }
