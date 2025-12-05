@@ -13,6 +13,20 @@ export class AuthService {
 
   constructor(private http: HttpClient) { }
 
+  async register(email: string, username: string, password: string) {
+    const res = await fetch('https://hello-full-stack-be-f8ehd3erddgdfhhd.germanywestcentral-01.azurewebsites.net/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: email,
+        username: username,
+        password: password
+      })
+    });
+    if (!res.ok) return false;
+    return true;
+  }
+
   async login(username: string, password: string): Promise<boolean> {
     try {
       const res = await lastValueFrom(
