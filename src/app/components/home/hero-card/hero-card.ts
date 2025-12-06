@@ -11,11 +11,18 @@ import { Input, Output, EventEmitter } from '@angular/core';
 })
 
 export class HeroCard {
+  @Input() page: 'home' | 'profile' = 'home';
   @Input() subtitle: string = '';
   @Input() title: string = '';
   @Input() buttonText: string = '';
   @Output() createProject = new EventEmitter<void>();
   @Output() saveProfile = new EventEmitter<void>();
+
+  get heroImage(): string {
+    return this.page === 'profile'
+      ? '/materials/profileHero.png'
+      : '/materials/progettoFigo.png';
+  }
 
   onCreateProject() {
     this.createProject.emit();
