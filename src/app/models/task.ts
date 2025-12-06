@@ -1,14 +1,14 @@
 export interface Task {
-  id?: string;         // Normalizzato DTO Backend  
-  _id?: any;           // momentaneo per poter lavorare con l'API  projectId?: string;
-  phaseId?: string;     
+  id: string;
+  projectId: string;
+  phaseId: string;
   title: string;
   description?: string;
   labels?: string[];
-  assignees?: string[]; // array di userId (hex)
+  assignees?: string[];
   dueDate?: string;
   createdBy?: string;
-  status?: string;      
+  status?: string;      // 'TODO' | 'done'
   createdAt?: string;
   updatedAt?: string;
 }

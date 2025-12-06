@@ -1,15 +1,12 @@
+<!--
 <div class="project-phase card">
   <h3>{{ phase.name }}</h3>
 
-  <!-- Tasks da fare -->
+   Tasks da fare 
   <ul *ngIf="phase.tasks.length > 0" class="tasks-todo">
     <li *ngFor="let task of phase.tasks">
       <div class="task">
         <div class="task-title">{{ task.title }}</div>
-        
-        <button (click)="editTask.emit(task)">Modifica</button>
-        <button (click)="deleteTask.emit(task)">Elimina</button>
-        <button (click)="addTask.emit(phase.phaseId)">Aggiungi Task</button>
 
         <div class="task-meta">
           <small *ngIf="task.assignees?.length">Assegnati: {{ task.assignees?.length }}</small>
@@ -19,11 +16,12 @@
     </li>
   </ul>
 
-  <!-- Tasks completati -->
+   Tasks completati 
   <ul *ngIf="phase.tasksDone.length > 0" class="tasks-done">
     <li *ngFor="let task of phase.tasksDone">
       <div class="task done">
         <div class="task-title">{{ task.title }}</div>
+
         <div class="task-meta">
           <small *ngIf="task.assignees?.length">Assegnati: {{ task.assignees?.length }}</small>
           <small *ngIf="task.dueDate">• scadenza: {{ task.dueDate | date:'short' }}</small>
@@ -32,7 +30,9 @@
     </li>
   </ul>
 
-  <div *ngIf="!phase.tasks.length && !phase.tasksDone.length" class="no-tasks">
+   Nessun task 
+  <div *ngIf="phase.tasks.length === 0 && phase.tasksDone.length === 0" class="no-tasks">
     Nessun task
   </div>
 </div>
+-->

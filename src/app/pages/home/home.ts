@@ -5,9 +5,9 @@ import { FormsModule } from '@angular/forms';
 // Services
 import { ProjectService } from '../../services/project.service';
 // Components
-import { Sidebar } from '../../components/sidebar/sidebar';
-import { HeroCard } from '../../components/hero-card/hero-card';
-import { ProjectCard } from '../../components/project-card/project-card';
+import { Sidebar } from '../../components/home/sidebar/sidebar';
+import { HeroCard } from '../../components/home/hero-card/hero-card';
+import { ProjectCard } from '../../components/home/projects-project/projects-project';
 // Interfaces
 import { Project } from '../../models/project';
 import { Task } from '../../models/task';
@@ -16,6 +16,7 @@ import { Phase } from '../../models/phase';
 // Modals
 import { lastValueFrom } from 'rxjs';
 import { TaskService } from '../../services/task.service';
+import { PhaseCard } from "../../components/home/project-phase/project-phase";
 
 @Component({
   selector: 'app-home',
@@ -26,6 +27,7 @@ import { TaskService } from '../../services/task.service';
     Sidebar,
     HeroCard,
     ProjectCard,
+    PhaseCard
   ],
   templateUrl: './home.html',
   styleUrls: ['./home.css']
@@ -36,6 +38,8 @@ export class Home implements OnInit {
   projects: Project[] = [];                // <- Array di progetti
   projectPhases: ProjectPhase[] = [];      // <- Array di fasi
   selectedProjectIndex = 0;                // <- Indice progetto selezionato
+  selectedPhaseIndex = 0;                  // <- Indice fase selezionata
+  selectedTaskIndex = 0;                   // <- Indice task selezionato
 
   // Overlay "creazione progetto"
   showAddProjectModal = false;              // <- Mostra overlay
@@ -81,12 +85,10 @@ export class Home implements OnInit {
     try {
       const rawProjects = await this.projectService.getUserProjects();
       this.projects = rawProjects.map((p, idx) => {
-        const normalizedId = p._id ?? p.id ?? p.ownerId; // Temporaneo <- Normalizziamo ID subito
         return {
           ...p,
+          members: p.members || [],
           active: idx === 0,
-          id: normalizedId,
-          _id: normalizedId
         }
       });
       if (this.projects.length > 0) await this.loadProjectDetails(0);
@@ -101,26 +103,32 @@ export class Home implements OnInit {
     try {
       const phases: Phase[] = project.phases || [];
       phases.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)); // Ordina fasi in modo ascendente
-      this.projectPhases = phases.map(p => ({
+      let tasks: Task[] = [];
+      try {
+        tasks = await lastValueFrom(this.taskService.getTasksByProject(project.id!));
+      } catch (e) {
+        console.warn("Tasks non disponibili, fasi in caricamento...");
+      }
+      this.projectPhases = phases.map((p, idx) => ({          // <- Mappa fasi aggiungendo i task e i task completati
         name: p.title,
-        active: false,
-        order: p.order,
+        active: idx === 0,                                    // <- Fase attiva
+        order: p.order ?? 0,
         phaseId: p.id,
-        tasks: project.tasks?.filter(t => t.phaseId === p.id) || [],
-        tasksDone: project.tasks?.filter(t => t.phaseId === p.id && t.status === 'done') || []
+        tasks: tasks.filter(t => t.phaseId === p.id),
+        tasksDone: tasks.filter(t => t.phaseId === p.id && t.status === 'done'),
       }));
     } catch (err) {
       console.error('Errore caricando dettagli progetto:', err);
       this.projectPhases = [];
     }
   }
+  /* --------------------------- OVERLAY Progetto ----------------------------------- */
   // Seleziona progetto e carica dettagli 
   selectProject(i: number) {
     this.projects = this.projects.map((p, idx) => ({ ...p, active: idx === i }));
     this.selectedProjectIndex = i;
     this.loadProjectDetails(i);
   }
-
   // Overlay aggiungi membro
   showAddMemberModal = false;
   newMemberEmail = '';
@@ -128,13 +136,11 @@ export class Home implements OnInit {
   selectedProjectForMember: Project | null = null;
   // Apri overlay aggiungi membro
   openAddMemberModal(project: Project) {
-    if (!project) return;
-    const normalizedId = project._id ?? project.id; // Temporaneo <- Normalizziamo ID subito
-    if (!normalizedId) {
-      console.error('ID progetto non valido:', project);
+    if (!project.id) {
+      console.error('Progetto non valido:', project);
       return;
     }
-    this.selectedProjectForMember = { ...project, id: normalizedId, _id: normalizedId };
+    this.selectedProjectForMember = project;
     this.newMemberEmail = '';
     this.addMemberError = null;
     this.showAddMemberModal = true;
@@ -160,19 +166,16 @@ export class Home implements OnInit {
       this.addMemberError = 'Errore aggiungendo membro';
     }
   }
-
   // Overlay elimina progetto
   showDeleteProjectModal = false;
   selectedProjectForDelete: Project | null = null;
   // Apri overlay elimina progetto
   openDeleteProjectModal(project: Project) {
-    if (!project) return;
-    const normalizedId = project._id ?? project.id ?? project.ownerId; // Temporaneo <- Normalizziamo ID subito
-    if (!normalizedId) {
-      console.error('ID progetto non valido:', project);
+    if (!project.id) {
+      console.error('Progetto non valido:', project);
       return;
     }
-    this.selectedProjectForDelete = { ...project, id: normalizedId, _id: normalizedId };
+    this.selectedProjectForDelete = project;
     this.showDeleteProjectModal = true;
   }
   // Chiudi overlay elimina progetto
@@ -191,10 +194,33 @@ export class Home implements OnInit {
       console.error('Errore eliminando progetto:', err);
     }
   }
+  /* --------------------------- OVERLAY Fase ----------------------------------- */
+  // Seleziona fase e carica dettagli ///poi da togliere se l'altro è finito
+  selectPhase(i: number) {
+    this.projectPhases = this.projectPhases.map((p, idx) => ({ ...p, active: idx === i }));
+  }
 
 
 
-  // Task
+/* --------------------------- OVERLAY Task ----------------------------------- */
+  // Overlay aggiorna task
+  async toggleTaskStatus(task: Task) {
+    const newStatus = task.status === 'done' ? 'TODO' : 'done';
+    try {
+      await lastValueFrom(this.taskService.updateTask(task.id!, {
+        projectId: task.projectId,
+        phaseId: task.phaseId!,
+        title: task.title,
+        description: task.description,
+        status: newStatus,
+        dueDate: task.dueDate
+      }));
+      await this.loadProjectDetails(this.selectedProjectIndex);
+    } catch (err) {
+      console.error('Errore aggiornando task:', err);
+    }
+  }
+  // Overlay elimina task
   taskService = inject(TaskService);
   async deleteTask(task: Task) {
     if (!confirm(`Eliminare il task "${task.title}"?`)) return;

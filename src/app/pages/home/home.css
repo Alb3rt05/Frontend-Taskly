@@ -2,7 +2,9 @@
 .home {
   display: flex;
   min-height: 100vh;
+  background: #f5f6fa;
   overflow-x: hidden;
+  font-family: 'Inter', sans-serif;
 }
 
 /* ====== MAIN ====== */
@@ -13,27 +15,42 @@
   padding: 2rem 3rem;
   gap: 2rem;
   overflow-y: auto;
-  margin-left: 250px;
+  margin-left: 250px; /* spazio per sidebar fissa */
 }
 
-/* ====== PROJECTS ====== */
+/* ====== HERO + HEADER ====== */
 .projects-header h2 {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 700;
 }
 
 .projects-header p {
   color: var(--text-muted);
   margin-top: 0.25rem;
+  font-size: 0.95rem;
+}
+
+/* ====== PROGETTI, FASI, TASKS ====== */
+.projects-layout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
 }
 
 .projects-sidebar {
-  width: 250px;
+  flex: 1;
+  max-width: 100%;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 .projects-title {
   font-weight: 600;
   margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: var(--text-primary);
 }
 
 .projects-sidebar ul {
@@ -43,20 +60,62 @@
 }
 
 .project-item {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
   cursor: pointer;
+  background: #f8f9fb;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.project-item:hover {
+  background: #e4e8f0;
 }
 
 .project-item.active {
-  border-left: 3px solid var(--primary);
-  padding-left: 0.5rem;
+  border-left: 4px solid var(--primary);
+  padding-left: 0.9rem;
+  background: #eaf2ff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
-/* Actions */
+/* ====== TASKS ====== */
+.phase-tasks {
+  margin-top: 0.5rem;
+  padding-left: 1rem;
+}
+
+.task {
+  padding: 0.5rem 0.75rem;
+  background: #f3f4f6;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.task.done {
+  background: #d1fae5;
+  text-decoration: line-through;
+}
+
+.task-title {
+  font-weight: 500;
+}
+
+.task-meta small {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+/* ====== ACTION BUTTONS ====== */
 .project-actions {
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  margin-top: 0.5rem;
 }
 
 .project-actions button {
@@ -72,7 +131,6 @@
 }
 
 .project-actions button:hover {
-  background: rgba(74, 144, 226, 0.1);
   transform: scale(1.1);
 }
 
@@ -84,18 +142,88 @@
   background: rgba(239, 68, 68, 0.15) !important;
 }
 
-/* ====== RESPONSIVE ====== */
-@media (max-width: 768px) {
-  .home {
-    flex-direction: column;
-  }
+/* ====== OVERLAY ====== */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
 
+.modal-card {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  width: 320px;
+  max-width: 90%;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.modal-card h3 {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.modal-card input {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  margin: 0.5rem 0 1rem 0;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+}
+
+.modal-card .error {
+  color: #ef4444;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.enter-button {
+  background: var(--primary);
+  color: #fff;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 6px;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.enter-button:hover {
+  background: #3b82f6;
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 1024px) {
   .main {
     padding: 1.5rem;
   }
 
+  .projects-layout {
+    flex-direction: column;
+  }
+
   .projects-sidebar {
+    max-width: 100%;
     width: 100%;
     margin-bottom: 1rem;
   }
 }
+
+@media (max-width: 768px) {
+  .main {
+    padding: 1rem;
+  }
+
+  .projects-sidebar {
+    padding: 0.8rem;
+  }
+}
+  .hero-content {
+width: 1px;  }

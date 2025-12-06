@@ -1,17 +1,11 @@
-import { Phase } from './phase';
-import { Task } from './task';
+import { Phase } from "./phase";
 
 export interface Project {
-  ownerId: any;        // momentaneo per poter lavorare con l'API
-  name: any;
-  id?: string;         // Normalizzato DTO Backend
-  _id?: any;           // momentaneo per poter lavorare con l'API
+  id: string;
   title: string;
-  creatorId?: string;
-  members?: string[];  // stringhe hex
-  phases?: Phase[];
-  tasks?: Task[];      // opzionale, popolato lato frontend dopo fetch tasks
-  createdAt?: string;
-  updatedAt?: string;
-  active?: boolean;
+  creatorId: string;            
+  members: string[];      
+  phases: Phase[];
+  createdAt: string;
+  updatedAt: string;
 }

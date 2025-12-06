@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
 import { Project } from '../models/project';
-import { Task } from '../models/task';
 
 @Injectable({
   providedIn: 'root'
