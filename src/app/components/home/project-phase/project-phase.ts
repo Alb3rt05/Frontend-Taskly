@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
-import { ProjectPhase } from '../../../models/projectPhase';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { PhaseWithTasks } from '../../../pages/home/home';
 
 @Component({
   selector: 'app-project-phase',
@@ -10,6 +10,7 @@ import { ProjectPhase } from '../../../models/projectPhase';
   styleUrl: './project-phase.css',
 })
 export class PhaseCard {
-  @Input() phase!: ProjectPhase;                    // Project Phase da visualizzare
+  @Input() phase!: PhaseWithTasks;                    // Project Phase da visualizzare
   @Input() active: boolean = false;
+  @Output() onDeletePhase = new EventEmitter<PhaseWithTasks>();
 }

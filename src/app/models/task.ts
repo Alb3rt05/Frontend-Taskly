@@ -7,8 +7,8 @@ export interface Task {
   labels?: string[];
   assignees?: string[];
   dueDate?: string;
+  status?: string;
   createdBy?: string;
-  status?: string;      // 'TODO' | 'done'
   createdAt?: string;
   updatedAt?: string;
 }

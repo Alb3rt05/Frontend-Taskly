@@ -26,7 +26,7 @@ export class ProjectService {
       return null;
     }
   }
-
+  /* ------------------------------Progetti------------------------------  */
   // Carica progetti dell'utente
   async getUserProjects(): Promise<Project[]> {
     const userId = this.getUserIdFromToken();
@@ -48,8 +48,12 @@ export class ProjectService {
     return lastValueFrom(this.http.delete(url));
   }
   // Aggiunge membro a progetto
-  addMemberToProject(projectId: string, email: string) {
+  addMemberToProject(projectId: string, email: string) {            // backend non ha questo endpoint
     const url = `${this.apiUrl}/projects/${projectId}/members`;
     return this.http.post(url, { email });
+  }
+  /* ------------------------------Fasi------------------------------  */
+  deletePhase(projectId: string, phaseId: string) {
+    return this.http.delete(`${this.apiUrl}/projects/${projectId}/phases/${phaseId}`);
   }
 }

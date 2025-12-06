@@ -1,0 +1,24 @@
+<div class="task-card" [class.done]="task.status">
+  <div class="task-header">
+    <h4 class="task-title">{{ task.title }}</h4>
+
+    <!-- DELETE BUTTON -->
+    <button 
+      class="delete-btn"
+      (click)="deleteTask(task)"
+      title="Elimina Task"
+    >
+      ✕
+    </button>
+  </div>
+
+  <div class="task-meta">
+    <small *ngIf="task.assignees?.length">
+      Assegnati: {{ task.assignees?.length }}
+    </small>
+
+    <small *ngIf="task.dueDate">
+      • Scadenza: {{ task.dueDate | date:'short' }}
+    </small>
+  </div>
+</div>

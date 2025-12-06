@@ -3,13 +3,16 @@ import { CommonModule } from '@angular/common';
 import { Task } from '../../../models/task';
 
 @Component({
-  selector: 'app-project-content',
+  selector: 'app-project-task',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './project-content.html',
+  templateUrl: './project-task.html',
 })
 export class TaskCard {
-  taskTitle(t: Task) {
-    return t.title || '(no title)';
+  @Input() task!: Task;
+  @Output() onDelete = new EventEmitter<Task>();
+
+  deleteTask(task: Task) {
+    this.onDelete.emit(task);
   }
 }

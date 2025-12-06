@@ -37,19 +37,19 @@ export class TaskService {
   getTasksByProject(projectId: string): Observable<Task[]> {
     return this.http.get<Task[]>(`${this.apiUrl}/tasks/project/${projectId}`);
   }
-
+  // Recupera una singola task
   createTask(task: TaskRequest): Observable<TaskResponse> {
     return this.http.post<TaskResponse>(`${this.apiUrl}/tasks`, task);
   }
-
+  // Aggiorna una task
   updateTask(taskId: string, task: TaskRequest): Observable<TaskResponse> {
     return this.http.put<TaskResponse>(`${this.apiUrl}/tasks/${taskId}`, task);
   }
-
-  deleteTask(taskId: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/tasks/${taskId}`);
+  // Elimina una task
+  deleteTask(taskId: string) {
+    return this.http.delete(`/api/tasks/${taskId}`);
   }
-
+  // Assegna una task
   assignTask(taskId: string, assigneeIds: string[]): Observable<TaskResponse> {
     return this.http.put<TaskResponse>(`${this.apiUrl}/tasks/${taskId}/assign`, assigneeIds);
   }
