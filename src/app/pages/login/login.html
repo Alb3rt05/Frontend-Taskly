@@ -22,7 +22,7 @@
             Password obbligatoria
           </div>
 
-          <button type="submit" [disabled]="loading">
+          <button type="submit" class="login-button" [disabled]="loading">
             {{ loading ? 'Verifica...' : 'Accedi' }}
           </button>
 
@@ -30,13 +30,13 @@
         </form>
 
         <!-- Registrati -->
-        <div class="register-link">
-          Non sei registrato?
-          <a (click)="showRegister = true">Registrati!</a>
+        <div>
+          Non hai un account?
+          <a class="register-link" (click)="showRegister = true">Registrati !</a>
         </div>
 
-        <div class="register-overlay" *ngIf="showRegister">
-          <div class="register-card">
+        <div class="overlay" *ngIf="showRegister">
+          <div class="modal-card">
             <h2>Crea un account</h2>
 
             <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
@@ -58,13 +58,13 @@
                 Password obbligatoria
               </div>
 
-              <button type="submit" class="register-button" [disabled]="loadingRegister">
+              <button type="submit" class="enter-button" [disabled]="loadingRegister">
                 {{ loadingRegister ? 'Creazione...' : 'Registrati' }}
               </button>
 
               <p *ngIf="registerError" class="error">{{ registerError }}</p>
 
-              <button type="button" class="close-overlay" (click)="showRegister = false">Annulla</button>
+              <button class="close-overlay" (click)="showRegister = false">Annulla</button>
             </form>
           </div>
         </div>

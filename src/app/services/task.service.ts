@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Task } from '../models/task';
 
 export interface TaskResponse {
   id: string;
@@ -28,10 +29,14 @@ export interface TaskRequest {
   providedIn: 'root'
 })
 export class TaskService {
-
   private apiUrl = 'https://hello-full-stack-be-f8ehd3erddgdfhhd.germanywestcentral-01.azurewebsites.net'; // aggiorna con il backend
 
   constructor(private http: HttpClient) { }
+
+  // Recupera tutte le task di un progetto
+  getTasksByProject(projectId: string): Observable<Task[]> {
+    return this.http.get<Task[]>(`${this.apiUrl}/tasks/project/${projectId}`);
+  }
 
   createTask(task: TaskRequest): Observable<TaskResponse> {
     return this.http.post<TaskResponse>(`${this.apiUrl}/tasks`, task);

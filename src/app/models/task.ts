@@ -1,15 +1,14 @@
 export interface Task {
-  id?: string;
-  _id?: any;            // backend può ritornare _id object
-  projectId?: string;
-  phaseId?: string;     
+  id: string;
+  projectId: string;
+  phaseId: string;
   title: string;
   description?: string;
   labels?: string[];
-  assignees?: string[]; // array di userId (hex)
+  assignees?: string[];
   dueDate?: string;
   createdBy?: string;
-  status?: string;      
+  status?: string;      // 'TODO' | 'done'
   createdAt?: string;
   updatedAt?: string;
 }

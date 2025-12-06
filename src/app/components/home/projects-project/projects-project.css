@@ -17,37 +17,6 @@
   margin-bottom: 0.25rem;
 }
 
-.project-actions {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.project-actions button {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0.4rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.project-actions button:hover {
-  background: rgba(74, 144, 226, 0.1);
-  transform: scale(1.1);
-}
-
-.edit-btn:hover {
-  background: rgba(74, 144, 226, 0.15) !important;
-}
-
-.delete-btn:hover {
-  background: rgba(239, 68, 68, 0.15) !important;
-}
-
 .project-meta {
   display: flex;
   flex-direction: column;

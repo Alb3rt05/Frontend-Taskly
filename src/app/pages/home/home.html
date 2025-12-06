@@ -2,15 +2,12 @@
   <app-sidebar></app-sidebar>
 
   <main class="main">
+    <!-- Hero -->
+    <app-hero-card subtitle="Crea Progetto" title="Inizia ora e dai vita al tuo nuovo Progetto"
+      buttonText="Crea Progetto" (createProject)="openAddProjectModal()">
+    </app-hero-card>
 
-    <!-- Modals -->
-    <app-add-project *ngIf="showAddProjectModal" (close)="closeAddProjectModal()" (created)="closeAddProjectModal(true)"></app-add-project>
-    <app-edit-project *ngIf="showEditProjectModal" [project]="selectedProjectForEdit!" (close)="closeEditProjectModal()" (updated)="closeEditProjectModal(true)"></app-edit-project>
-    <app-add-task *ngIf="showAddTaskModal" [projectId]="projects[selectedProjectIndex]?.id ?? projects[selectedProjectIndex]?._id?.$oid" [phases]="projects[selectedProjectIndex]?.phases || []" (close)="closeAddTaskModal()" (created)="closeAddTaskModal(true)"></app-add-task>
-    <app-edit-task *ngIf="showEditTaskModal && selectedTaskForEdit" [task]="selectedTaskForEdit" [phases]="projects[selectedProjectIndex]?.phases || []" (close)="closeEditTaskModal()" (updated)="closeEditTaskModal(true)"></app-edit-task>
-
-    <app-hero-card subtitle="Crea Progetto" title="Inizia ora e dai vita al tuo nuovo Progetto" buttonText="Crea Progetto" (createProject)="openAddProjectModal()"></app-hero-card>
-
+    <!-- Header -->
     <section class="projects-header">
       <div>
         <h2>Progetti</h2>
@@ -18,20 +15,91 @@
       </div>
     </section>
 
-    <div *ngIf="projects.length > 0" class="projects-sidebar">
-      <div class="projects-title">Tutti i progetti</div>
-      <ul>
-        <li *ngFor="let project of projects; let i = index" class="project-item" [class.active]="project.active" (click)="selectProject(i)">
-          <app-project-card [project]="project" (edit)="editProject($event)" (delete)="deleteProject($event)"></app-project-card>
-        </li>
-        <li class="add-project" (click)="openAddProjectModal()">+</li>
-      </ul>
+    <div class="projects-layout">
+      <!-- Colonna progetti -->
+      <div class="projects-sidebar">
+        <h3 class="projects-title">Tutti i progetti</h3>
+        <ul>
+          <li *ngFor="let project of projects; let i = index" class="project-item"
+            [class.active]="selectedProjectIndex === i" (click)="selectProject(i)">
+            <app-projects-project [project]="project" [active]="selectedProjectIndex === i"></app-projects-project>
+            <!-- Pulsanti per progetto selezionato -->
+            <div *ngIf="selectedProjectIndex === i" class="project-actions">
+              <button title="Modifica progetto" class="edit-btn"
+                (click)="openAddMemberModal(project); $event.stopPropagation();">
+                <img src="/icons/addPeople.svg" alt="Edit">
+              </button>
+              <button title="Elimina progetto" class="delete-btn"
+                (click)="openDeleteProjectModal(project); $event.stopPropagation();">
+                <img src="/icons/deleteProject.svg" alt="Delete">
+              </button>
+            </div>
+          </li>
+        </ul>
+      </div>
+      
+      <!-- Colonna fasi progetto selezionato -->
+      <div class="projects-sidebar">
+        <h3 class="projects-title">Fasi del progetto</h3>
+        <ul>
+          <li *ngFor="let phase of projectPhases; let i = index" class="project-item" 
+            [class.active]="phase.active" (click)="selectPhase(i)">
+            <app-project-phase [phase]="phase" [active]="selectedPhaseIndex === i"></app-project-phase>
+          </li>
+          <p *ngIf="projectPhases.length === 0">Nessuna fase trovata</p>
+        </ul>
+      </div>
+
+      <!-- Colonna task fase selezionata -->
+      <div class="projects-sidebar">
+        <h3 class="projects-title">Task della fase</h3>
+        <div *ngIf="" class="project-item" [class.active]="">
+          <!-- <div (click)="selectTask(phaseTasks.indexOf(task))">
+            {{ task.name }} dettagli task
+          </div> -->
+          <!-- <app-project-content [phase]="selectedPhaseTask" (editTask)="toggleTaskStatus($event)"
+            (deleteTask)="deleteTask($event)" (addTask)="selectPhaseTask($event)">
+          </app-project-content> -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Overlay Crea Progetto -->
+    <div class="overlay" *ngIf="showAddProjectModal">
+      <div class="modal-card">
+        <h3>Crea nuovo progetto</h3>
+        <label>Titolo</label>
+        <input type="text" [(ngModel)]="newProjectTitle" placeholder="Titolo progetto" />
+        <div class="error" *ngIf="createProjectError">{{ createProjectError }}</div>
+        <button type="submit" class="enter-button" [disabled]="loadingCreateProject" (click)="createProject()">
+          {{ loadingCreateProject ? 'Creazione...' : 'Crea progetto' }}
+        </button>
+        <button class="close-overlay" (click)="closeAddProjectModal()">Chiudi</button>
+      </div>
+    </div>
+
+    <!-- Overlay Elimina Progetto -->
+    <div class="overlay" *ngIf="showDeleteProjectModal">
+      <div class="modal-card">
+        <h3>Conferma eliminazione</h3>
+        <p>Vuoi davvero eliminare "{{ selectedProjectForDelete?.title }}"?</p>
+        <button type="submit" class="enter-button" (click)="deleteProject()">Elimina</button>
+        <button class="close-overlay" (click)="closeDeleteProjectModal()">Annulla</button>
+      </div>
+    </div>
+
+    <!-- Overlay Aggiungi Membro -->
+    <div class="overlay" *ngIf="showAddMemberModal">
+      <div class="modal-card">
+        <h3>Aggiungi membro al progetto</h3>
+        <label>Email membro</label>
+        <input type="email" [(ngModel)]="newMemberEmail" placeholder="Email" />
+        <div class="error" *ngIf="addMemberError">{{ addMemberError }}</div>
+        <button type="submit" class="enter-button" (click)="addMember()">Aggiungi</button>
+        <button class="close-overlay" (click)="closeAddMemberModal()">Chiudi</button>
+      </div>
     </div>
 
     <p *ngIf="projects.length === 0">Nessun progetto trovato</p>
-
-    <div *ngIf="projectPhases.length > 0" class="project-content">
-      <app-project-content *ngFor="let phase of projectPhases" [phase]="phase" (editTask)="openEditTaskModal($event)" (deleteTask)="deleteTask($event)" (addTask)="openAddTaskModal(phase.phaseId!)"></app-project-content>
-    </div>
   </main>
 </div>

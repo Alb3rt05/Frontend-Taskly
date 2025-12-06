@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Sidebar } from "../../components/sidebar/sidebar";
-import { HeroCard } from '../../components/hero-card/hero-card';
+import { Sidebar } from "../../components/home/sidebar/sidebar";
+import { HeroCard } from '../../components/home/hero-card/hero-card';
 import { UserService } from '../../services/user.service';
 
 @Component({

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DeleteProject } from './delete-project';
+import { ProjectCard } from './projects-project';
 
-describe('DeleteProject', () => {
-  let component: DeleteProject;
-  let fixture: ComponentFixture<DeleteProject>;
+describe('ProjectCard', () => {
+  let component: ProjectCard;
+  let fixture: ComponentFixture<ProjectCard>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DeleteProject]
+      imports: [ProjectCard]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(DeleteProject);
+    fixture = TestBed.createComponent(ProjectCard);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
