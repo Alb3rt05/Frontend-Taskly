@@ -1,33 +1,8 @@
 .hero-text {
     padding: 20px;
-}
-
-.hero-image {
-    height: 100%;
-    width: 348px;
-}
-
-.btn-icon {
-    width: 24px;
-    height: 24px;
-    flex-shrink: 0;
-}
-
-.btn-text {
-    color: #333;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-}
-
-.btn {
     display: flex;
-    width: 260px;
-    padding: 10px;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
+    flex-direction: column; /* mette tutto in verticale */
+    gap: 20px; /* distanza tra titoli e bottoni */
 }
 
 .hero-content {
@@ -37,4 +12,36 @@
     font-style: normal;
     font-weight: 700;
     line-height: 40px;
+}
+
+.btn {
+    display: flex;
+    width: 260px;
+    padding: 10px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    background-color: #fff; /* esempio colore, metti quello che vuoi */
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-text {
+    color: #333;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.btn-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+/* Se vuoi separare i bottoni tra loro e dal titolo */
+.hero-buttons {
+    display: flex;
+    flex-direction: column; /* verticale */
+    gap: 12px; /* distanza tra i tre bottoni */
 }

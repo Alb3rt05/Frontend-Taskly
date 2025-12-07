@@ -10,6 +10,7 @@ import { Task } from '../../../models/task';
 })
 export class TaskCard {
   @Input() task!: Task;
+  @Input() active: boolean = false;
   @Output() onDelete = new EventEmitter<Task>();
 
   deleteTask(task: Task) {

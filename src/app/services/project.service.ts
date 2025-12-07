@@ -11,6 +11,7 @@ export class ProjectService {
   private apiUrl = 'https://hello-full-stack-be-f8ehd3erddgdfhhd.germanywestcentral-01.azurewebsites.net';
   constructor(private http: HttpClient) { }
 
+  /* ------------------------------Token------------------------------  */
   // Recupera l'ID dell'utente dal token
   private getUserIdFromToken(): string | null {
     try {
@@ -52,7 +53,14 @@ export class ProjectService {
     const url = `${this.apiUrl}/projects/${projectId}/members`;
     return this.http.post(url, { email });
   }
+
   /* ------------------------------Fasi------------------------------  */
+  // Crea fase
+  createPhase(projectId: string, body: { title: string }) {
+    const url = `${this.apiUrl}/projects/${projectId}/phases`;
+    return this.http.post(url, body);
+  }
+  // Elimina fase
   deletePhase(projectId: string, phaseId: string) {
     return this.http.delete(`${this.apiUrl}/projects/${projectId}/phases/${phaseId}`);
   }

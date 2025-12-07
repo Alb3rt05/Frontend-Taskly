@@ -29,7 +29,8 @@ export interface TaskRequest {
   providedIn: 'root'
 })
 export class TaskService {
-  private apiUrl = 'https://hello-full-stack-be-f8ehd3erddgdfhhd.germanywestcentral-01.azurewebsites.net'; // aggiorna con il backend
+
+  private apiUrl = 'https://hello-full-stack-be-f8ehd3erddgdfhhd.germanywestcentral-01.azurewebsites.net';
 
   constructor(private http: HttpClient) { }
 
@@ -47,10 +48,13 @@ export class TaskService {
   }
   // Elimina una task
   deleteTask(taskId: string) {
-    return this.http.delete(`/api/tasks/${taskId}`);
+    return this.http.delete(`${this.apiUrl}/tasks/${taskId}`);
   }
-  // Assegna una task
+  // Aggiunge un assignee alla task
   assignTask(taskId: string, assigneeIds: string[]): Observable<TaskResponse> {
-    return this.http.put<TaskResponse>(`${this.apiUrl}/tasks/${taskId}/assign`, assigneeIds);
+    return this.http.put<TaskResponse>(
+      `${this.apiUrl}/tasks/${taskId}/assign`,
+      assigneeIds
+    );
   }
 }
