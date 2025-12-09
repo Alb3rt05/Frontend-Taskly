@@ -2,11 +2,25 @@
   <div class="hero-text">
     <p class="hero-sub">{{ subtitle }}</p>
     <h1 class="hero-content">{{ title }}</h1>
-    <!-- Button -->
-    <button class="btn" (click)="onCreateProject()">
-      <p class="btn-text">{{ buttonText }}</p>
-      <img class="btn-icon" src="/icons/createProject.svg" />
-    </button>
+    <div class="btn-container">
+      <!-- Bottone Progetto -->
+      <button class="btn" *ngIf="projectButtonText" (click)="onCreateProject()">
+        <p class="btn-text">{{ projectButtonText }}</p>
+        <img class="btn-icon" src="/icons/createProject.svg" />
+      </button>
+
+      <!-- Bottone Fase -->
+      <button class="btn" *ngIf="phaseButtonText" (click)="onCreatePhase()">
+        <p class="btn-text">{{ phaseButtonText }}</p>
+        <img class="btn-icon" src="/icons/createProject.svg" />
+      </button>
+
+      <!-- Bottone Task -->
+      <button class="btn" *ngIf="taskButtonText" (click)="onCreateTask()">
+        <p class="btn-text">{{ taskButtonText }}</p>
+        <img class="btn-icon" src="/icons/createProject.svg" />
+      </button>
+    </div>
   </div>
-  <img class="hero-image" src="/materials/star1.png" />
+  <img class="hero-image" [src]="heroImage" />
 </section>

@@ -157,8 +157,7 @@ textarea {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(20deg, var(--primary) 0%, var(--secondary) 100%);
-  border-radius: 12px;
+  background: linear-gradient(20deg, #583bf6 0%, #47f4ce 100%);  border-radius: 12px;
   color: #fff;
   flex-wrap: wrap;
   padding: 0;

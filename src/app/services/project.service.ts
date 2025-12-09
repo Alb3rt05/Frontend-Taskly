@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, Observable } from 'rxjs';
 import { Project } from '../models/project';
+import { PhaseRequest } from '../models/phaserequest';
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +12,7 @@ export class ProjectService {
   private apiUrl = 'https://hello-full-stack-be-f8ehd3erddgdfhhd.germanywestcentral-01.azurewebsites.net';
   constructor(private http: HttpClient) { }
 
+  /* ------------------------------Token------------------------------  */
   // Recupera l'ID dell'utente dal token
   private getUserIdFromToken(): string | null {
     try {
@@ -26,7 +28,7 @@ export class ProjectService {
       return null;
     }
   }
-
+  /* ------------------------------Progetti------------------------------  */
   // Carica progetti dell'utente
   async getUserProjects(): Promise<Project[]> {
     const userId = this.getUserIdFromToken();
@@ -48,8 +50,18 @@ export class ProjectService {
     return lastValueFrom(this.http.delete(url));
   }
   // Aggiunge membro a progetto
-  addMemberToProject(projectId: string, email: string) {
+  addMemberToProject(projectId: string, email: string) {            // backend non ha questo endpoint
     const url = `${this.apiUrl}/projects/${projectId}/members`;
     return this.http.post(url, { email });
+  }
+
+  /* ------------------------------Fasi------------------------------  */
+  // Crea fase
+  createPhase(projectId: string, phaserequest: PhaseRequest): Observable<any> {
+    return this.http.post(`${this.apiUrl}/projects/${projectId}/phases`, phaserequest);
+  }
+  // Elimina fase
+  deletePhase(projectId: string, phaseId: string) {
+    return this.http.delete(`${this.apiUrl}/projects/${projectId}/phases/${phaseId}`);
   }
 }
