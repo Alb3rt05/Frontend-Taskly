@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { Task } from '../models/task';
 
 export interface TaskResponse {
   id: string;
@@ -29,23 +30,33 @@ export interface TaskRequest {
 })
 export class TaskService {
 
-  private apiUrl = 'https://hello-full-stack-be-f8ehd3erddgdfhhd.germanywestcentral-01.azurewebsites.net'; // aggiorna con il backend
+  private apiUrl = 'https://hello-full-stack-be-f8ehd3erddgdfhhd.germanywestcentral-01.azurewebsites.net';
 
   constructor(private http: HttpClient) { }
 
+  // Recupera tutte le task di un progetto
+  getTasksByProject(projectId: string): Observable<Task[]> {
+    // 🛑 Endpoint /tasks/project/{projectId} NON implementato nel backend. Restituisco dati vuoti.
+    console.warn("L'endpoint GET /tasks/project/{projectId} Task non disponibili.");
+    return of([]);
+  }
+  // Recupera una singola task
   createTask(task: TaskRequest): Observable<TaskResponse> {
     return this.http.post<TaskResponse>(`${this.apiUrl}/tasks`, task);
   }
-
+  // Aggiorna una task
   updateTask(taskId: string, task: TaskRequest): Observable<TaskResponse> {
     return this.http.put<TaskResponse>(`${this.apiUrl}/tasks/${taskId}`, task);
   }
-
-  deleteTask(taskId: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/tasks/${taskId}`);
+  // Elimina una task
+  deleteTask(taskId: string) {
+    return this.http.delete(`${this.apiUrl}/tasks/${taskId}`);
   }
-
+  // Aggiunge un assignee alla task
   assignTask(taskId: string, assigneeIds: string[]): Observable<TaskResponse> {
-    return this.http.put<TaskResponse>(`${this.apiUrl}/tasks/${taskId}/assign`, assigneeIds);
+    return this.http.put<TaskResponse>(
+      `${this.apiUrl}/tasks/${taskId}/assign`,
+      assigneeIds
+    );
   }
 }

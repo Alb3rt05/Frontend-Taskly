@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, Observable } from 'rxjs';
 import { Project } from '../models/project';
-import { Task } from '../models/task';
+import { PhaseRequest } from '../models/phaserequest';
 
 @Injectable({
   providedIn: 'root'
@@ -10,10 +10,10 @@ import { Task } from '../models/task';
 
 export class ProjectService {
   private apiUrl = 'https://hello-full-stack-be-f8ehd3erddgdfhhd.germanywestcentral-01.azurewebsites.net';
-
   constructor(private http: HttpClient) { }
 
-  // decodifica payload JWT senza verifica per leggere l'user id
+  /* ------------------------------Token------------------------------  */
+  // Recupera l'ID dell'utente dal token
   private getUserIdFromToken(): string | null {
     try {
       const token = localStorage.getItem('accessToken');
@@ -28,7 +28,8 @@ export class ProjectService {
       return null;
     }
   }
-
+  /* ------------------------------Progetti------------------------------  */
+  // Carica progetti dell'utente
   async getUserProjects(): Promise<Project[]> {
     const userId = this.getUserIdFromToken();
     if (!userId) {
@@ -38,53 +39,29 @@ export class ProjectService {
     const url = `${this.apiUrl}/projects/owner/${userId}`;
     return lastValueFrom(this.http.get<Project[]>(url));
   }
-
   // Crea progetto
   async createProject(title: string) {
     const url = `${this.apiUrl}/projects`;
-    // Il backend si aspetta ProjectRequest (title + opzionali)
     return lastValueFrom(this.http.post(url, { title }));
   }
-
-  // Update progetto
-  async updateProject(project: Project): Promise<any> {
-    const projectId = project.id ?? project._id?.$oid ?? project._id;
-    if (!projectId) throw new Error('Project id non presente');
-    const url = `${this.apiUrl}/projects/${projectId}`;
-    return lastValueFrom(this.http.put(url, project));
-  }
-
   // Elimina progetto
-  async deleteProject(projectId: string): Promise<any> {
+  async deleteProject(projectId: string) {
     const url = `${this.apiUrl}/projects/${projectId}`;
     return lastValueFrom(this.http.delete(url));
   }
+  // Aggiunge membro a progetto
+  addMemberToProject(projectId: string, email: string) {            // backend non ha questo endpoint
+    const url = `${this.apiUrl}/projects/${projectId}/members`;
+    return this.http.post(url, { email });
+  }
 
-  async getTasksForProject(projectId: string | null): Promise<Task[]> {
-    if (!projectId) {
-      console.error('Project id not found or undefined.');
-      return [];
-    }
-    const urlCandidate1 = `${this.apiUrl}/tasks`;
-    const params = new HttpParams().set('projectId', projectId);
-    try {
-      // prova GET /tasks?projectId=...
-      const tasks = await lastValueFrom(this.http.get<Task[]>(urlCandidate1, { params }));
-      if (Array.isArray(tasks)) return tasks;
-    } catch (err) {
-      // Tenta fallback
-    }
-
-    try {
-      // fallback a /projects/{id}/tasks
-      const urlCandidate2 = `${this.apiUrl}/projects/${projectId}/tasks`;
-      const tasks = await lastValueFrom(this.http.get<Task[]>(urlCandidate2));
-      if (Array.isArray(tasks)) return tasks;
-    } catch (err) {
-      // fallback finale: ritorna []
-    }
-
-    console.warn(`No tasks endpoint found for project ${projectId}. Returning empty array.`);
-    return [];
+  /* ------------------------------Fasi------------------------------  */
+  // Crea fase
+  createPhase(projectId: string, phaserequest: PhaseRequest): Observable<any> {
+    return this.http.post(`${this.apiUrl}/projects/${projectId}/phases`, phaserequest);
+  }
+  // Elimina fase
+  deletePhase(projectId: string, phaseId: string) {
+    return this.http.delete(`${this.apiUrl}/projects/${projectId}/phases/${phaseId}`);
   }
 }

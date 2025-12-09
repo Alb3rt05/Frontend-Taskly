@@ -1,0 +1,13 @@
+<div>
+  <!-- Task Title -->
+  <h4>{{ task.title }}</h4>
+  
+  <!-- Task details -->
+  <small *ngIf="task.assignees?.length">
+    Assegnati: {{ task.assignees?.length }}
+  </small>
+
+  <small *ngIf="task.dueDate">
+    • Scadenza: {{ task.dueDate | date:'short' }}
+  </small>
+</div>

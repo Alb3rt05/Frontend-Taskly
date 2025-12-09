@@ -1,70 +1,101 @@
+// Angular
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 // Services
 import { ProjectService } from '../../services/project.service';
+import { TaskService } from '../../services/task.service';
 // Components
-import { Sidebar } from '../../components/sidebar/sidebar';
-import { HeroCard } from '../../components/hero-card/hero-card';
-import { ProjectCard } from '../../components/project-card/project-card';
-import { ProjectContent } from '../../components/project-content/project-content';
-// Interfaces
+import { Sidebar } from '../../components/home/sidebar/sidebar';
+import { HeroCard } from '../../components/home/hero-card/hero-card';
+import { ProjectCard } from '../../components/home/projects-project/projects-project';
+import { PhaseCard } from "../../components/home/project-phase/project-phase";
+// Models
 import { Project } from '../../models/project';
 import { Task } from '../../models/task';
-import { ProjectPhase } from '../../models/projectPhase';
 import { Phase } from '../../models/phase';
-// Modals
-import { AddProject } from '../../components/modals/add-project/add-project';
-import { AddTask } from '../../components/modals/add-task/add-task';
-import { EditTask } from '../../components/modals/edit-task/edit-task';
+import { PhaseRequest } from '../../models/phaserequest';
+// Helpers
+import { lastValueFrom } from 'rxjs';
+import { TaskCard } from "../../components/home/project-task/project-task";
 
+// INTERFACCIA FASE + TASKS
+export interface PhaseWithTasks extends Phase {
+  tasks: Task[];
+  tasksDone: Task[];
+  active?: boolean;
+}
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     Sidebar,
     HeroCard,
     ProjectCard,
-    ProjectContent,
-    AddProject,
-    AddTask,
-    EditTask
+    PhaseCard,
+    TaskCard
   ],
   templateUrl: './home.html',
   styleUrls: ['./home.css']
 })
 export class Home implements OnInit {
+  /* ==================== SERVICES ==================== */
   projectService = inject(ProjectService);
-  projects: Project[] = [];
-  projectPhases: ProjectPhase[] = [];
-  selectedProjectIndex = 0;
+  taskService = inject(TaskService);
 
-  // Per le modals
+  /* ==================== VARIABILI ==================== */
+  projects: Project[] = [];
+  projectPhases: PhaseWithTasks[] = [];
+  selectedProjectIndex = 0;
+  selectedPhaseIndex = 0;
+  selectedTaskIndex = 0;
+
+  /* ==================== MODALI ==================== */
+  // Progetto
   showAddProjectModal = false;
+  newProjectTitle = '';
+  loadingCreateProject = false;
+  createProjectError: string | null = null;
+  showDeleteProjectModal = false;
+  selectedProjectForDelete: Project | null = null;
+  showAddMemberModal = false;
+  newMemberEmail = '';
+  addMemberError: string | null = null;
+  selectedProjectForMember: Project | null = null;
+
+  // Fase
+  showAddPhaseModal = false;
+  newPhaseTitle = '';
+  loadingCreatePhase = false;
+  createPhaseError: string | null = null;
+  showDeletePhaseModal = false;
+  phaseToDelete?: PhaseWithTasks;
+
+  // Task
   showAddTaskModal = false;
-  showEditTaskModal = false;
-  selectedPhaseForTask: string | null = null;
-  selectedTaskForEdit: Task | null = null;
+  newTaskTitle = '';
+  loadingCreateTask = false;
+  createTaskError: string | null = null;
+  showDeleteTaskModal = false;
+  taskToDelete: Task | null = null;
 
   ngOnInit(): void {
     this.loadProjects();
   }
 
+  /* ==================== CARICAMENTO PROGETTI ==================== */
   async loadProjects() {
     try {
-      this.projects = await this.projectService.getUserProjects();
-
-      if (this.projects.length > 0) {
-        // seleziona il primo progetto come attivo (se non hai logica di selezione)
-        this.projects = this.projects.map((p, idx) => ({ ...p, active: idx === 0 }));
-
-        // carica tasks per il progetto selezionato
-        await this.loadProjectDetails(0);
-      } else {
-        this.projectPhases = [];
-      }
-
+      const rawProjects = await this.projectService.getUserProjects();
+      this.projects = rawProjects.map((p, idx) => ({
+        ...p,
+        members: p.members || [],
+        active: idx === 0
+      }));
+      if (this.projects.length > 0) await this.loadProjectDetails(0);
     } catch (err) {
       console.error('Errore caricando progetti:', err);
     }
@@ -73,91 +104,41 @@ export class Home implements OnInit {
   async loadProjectDetails(index: number) {
     const project = this.projects[index];
     if (!project) return;
+
+    // START: MODIFICA PER GESTIRE ENDPOINT TASK MANCANTE
+    let tasks: Task[] = [];
     try {
-      const projectId =
-        project.id ??
-        project._id?.$oid ??   // <--- corretto per Mongo
-        project._id ??         // fallback
-        null;
+      // Questa chiamata tornerà un Observable vuoto grazie alla modifica in TaskService (punto 3)
+      // Se l'endpoint backend fosse attivo, le task verrebbero caricate qui.
+      tasks = await lastValueFrom(this.taskService.getTasksByProject(project.id!));
+    } catch (e) {
+      // In questo scenario (endpoint mancante), l'errore è previsto
+      console.warn("Tasks non disponibili (l'endpoint backend è mancante). Le fasi verranno caricate senza task.");
+    }
+    // END: MODIFICA PER GESTIRE ENDPOINT TASK MANCANTE
 
-      const tasks = projectId
-        ? await this.projectService.getTasksForProject(projectId)
-        : [];
-      // normalizza taskId e phaseId per comodità
-      const normalizedTasks: Task[] = (tasks || []).map(t => {
-        const id = (t as any)._id ? ((t as any)._id.$oid || (t as any)._id) : (t as any).id;
-        return { ...t, id: id };
-      });
-
-      // attach tasks to project (so ProjectCard can use if needed)
-      project.tasks = normalizedTasks;
-
-      // create phases array for UI
+    try {
       const phases: Phase[] = project.phases || [];
-      // ordina per order se presente
       phases.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-      // create projectPhases array for UI
-      this.projectPhases = phases.map(phase => { // filtra tasks per phase
-        const phaseTasks = normalizedTasks.filter(t => (t.phaseId ?? t.phaseId) === phase.id);
-        const todo = phaseTasks.filter(t => !(t.status && t.status.toLowerCase().includes('done')));
-        const done = phaseTasks.filter(t => (t.status && t.status.toLowerCase().includes('done')));
-        return { 
-          name: phase.title, 
-          phaseId: phase.id, 
-          tasks: todo || [], // sempre array
-          tasksDone: done || []
-        };
-      });
-
+      this.projectPhases = phases.map((p, idx) => ({
+        ...p,
+        active: idx === 0,
+        // La logica di filtraggio è corretta e applica le task caricate (che per ora saranno [])
+        tasks: tasks.filter(t => t.phaseId === p.id),
+        tasksDone: tasks.filter(t => t.phaseId === p.id && t.status === 'done')
+      }));
     } catch (err) {
       console.error('Errore caricando dettagli progetto:', err);
       this.projectPhases = [];
     }
   }
 
-  addProject() {
-    this.openAddProjectModal();
-  }
-
-  async editProject(project: Project) {
-    const newTitle = prompt('Modifica titolo progetto', project.title);
-    if (!newTitle) return;
-    try {
-      const projectId = project.id ?? project._id?.$oid ?? project._id;
-      if (!projectId) return;
-      await this.projectService.updateProject({ ...project, title: newTitle });
-      await this.loadProjects();
-    } catch (err) {
-      console.error('Errore modificando progetto:', err);
-    }
-  }
-
-  async deleteProject(project: Project) {
-    if (!confirm(`Eliminare il progetto "${project.title}"?`)) return;
-    try {
-      const projectId = project.id ?? project._id?.$oid ?? project._id;
-      if (!projectId) return;
-      await this.projectService.deleteProject(projectId);
-      await this.loadProjects();
-    } catch (err) {
-      console.error('Errore eliminando progetto:', err);
-    }
-  }
-
-  // gestore click su project item: carica dettagli del progetto selezionato
-  async selectProject(i: number) {
-    this.projects = this.projects.map((p, idx) => ({ ...p, active: idx === i }));
-    this.selectedProjectIndex = i;
-    await this.loadProjectDetails(i);
-  }
-
-  /*----------------------------
-  Per le Modals
-  ------------------------------ */
-  // ---------- PROGETTO ----------
+  /* ==================== PROGETTI ==================== */
   openAddProjectModal() {
     this.showAddProjectModal = true;
+    this.newProjectTitle = '';
+    this.createProjectError = null;
   }
 
   closeAddProjectModal(created?: boolean) {
@@ -165,25 +146,220 @@ export class Home implements OnInit {
     if (created) this.loadProjects();
   }
 
-  // ---------- TASK ----------
-  openAddTaskModal(phaseId: string) {
-    this.selectedPhaseForTask = phaseId;
+  async createProject() {
+    if (!this.newProjectTitle) {
+      this.createProjectError = 'Il titolo è obbligatorio';
+      return;
+    }
+    this.loadingCreateProject = true;
+    this.createProjectError = null;
+    try {
+      await this.projectService.createProject(this.newProjectTitle);
+      this.closeAddProjectModal(true);
+    } catch (err) {
+      console.error(err);
+      this.createProjectError = 'Errore creando progetto';
+    } finally {
+      this.loadingCreateProject = false;
+    }
+  }
+
+  selectProject(i: number) {
+    this.projects = this.projects.map((p, idx) => ({ ...p, active: idx === i }));
+    this.selectedProjectIndex = i;
+    this.loadProjectDetails(i);
+  }
+
+  openDeleteProjectModal(project: Project) {
+    if (!project.id) return;
+    this.selectedProjectForDelete = project;
+    this.showDeleteProjectModal = true;
+  }
+
+  closeDeleteProjectModal(deleted?: boolean) {
+    this.showDeleteProjectModal = false;
+    this.selectedProjectForDelete = null;
+    if (deleted) this.loadProjects();
+  }
+
+  async deleteProject() {
+    if (!this.selectedProjectForDelete) return;
+    try {
+      await this.projectService.deleteProject(this.selectedProjectForDelete.id!);
+      this.closeDeleteProjectModal(true);
+    } catch (err) {
+      console.error('Errore eliminando progetto:', err);
+    }
+  }
+
+  openAddMemberModal(project: Project) {
+    if (!project.id) return;
+    this.selectedProjectForMember = project;
+    this.newMemberEmail = '';
+    this.addMemberError = null;
+    this.showAddMemberModal = true;
+  }
+
+  closeAddMemberModal(updated?: boolean) {
+    this.showAddMemberModal = false;
+    this.selectedProjectForMember = null;
+    if (updated) this.loadProjects();
+  }
+
+  async addMember() {
+    if (!this.newMemberEmail || !this.selectedProjectForMember) {
+      this.addMemberError = 'Inserisci un indirizzo email valido';
+      return;
+    }
+
+    // START: MODIFICA PER ENDPOINT MANCANTE
+    this.addMemberError = 'Funzionalità non disponibile. L\'API del backend non supporta ancora l\'aggiunta di membri.';
+    console.warn("Chiamata addMemberToProject bloccata: L'endpoint POST /projects/{id}/members è mancante nel backend.");
+
+    // Codice originale (commentato per prevenire errore 404):
+    /*
+    try {
+      await lastValueFrom(this.projectService.addMemberToProject(this.selectedProjectForMember.id!, this.newMemberEmail));
+      this.closeAddMemberModal(true);
+    } catch (err) {
+      console.error(err);
+      this.addMemberError = 'Errore aggiungendo membro';
+    }
+    */
+    // END: MODIFICA PER ENDPOINT MANCANTE
+  }
+
+  /* ==================== FASI ==================== */
+  selectPhase(i: number) {
+    this.projectPhases = this.projectPhases.map((p, idx) => ({ ...p, active: idx === i }));
+    this.selectedPhaseIndex = i;
+  }
+
+  openDeletePhaseModal(phase: PhaseWithTasks) {
+    this.phaseToDelete = phase;
+    this.showDeletePhaseModal = true;
+  }
+
+  closeDeletePhaseModal(deleted?: boolean) {
+    this.showDeletePhaseModal = false;
+    this.phaseToDelete = undefined;
+    if (deleted) this.loadProjectDetails(this.selectedProjectIndex);
+  }
+
+  async deletePhase() {
+    if (!this.phaseToDelete) return;
+    const projectId = this.projects[this.selectedProjectIndex].id!;
+    try {
+      await lastValueFrom(this.projectService.deletePhase(projectId, this.phaseToDelete.id));
+      await this.loadProjectDetails(this.selectedProjectIndex);
+      this.showDeletePhaseModal = false;
+    } catch (err) {
+      console.error('Errore eliminando fase:', err);
+    }
+    this.loadProjects();
+  }
+
+  openAddPhaseModal() {
+    this.showAddPhaseModal = true;
+    this.newPhaseTitle = '';
+    this.createPhaseError = null;
+  }
+
+  closeAddPhaseModal(created?: boolean) {
+    this.showAddPhaseModal = false;
+    if (created) this.loadProjectDetails(this.selectedProjectIndex);
+  }
+
+  async createPhase() {
+    if (!this.newPhaseTitle) {
+      this.createPhaseError = 'Il titolo è obbligatorio';
+      return;
+    }
+    this.loadingCreatePhase = true;
+    this.createPhaseError = null;
+    try {
+      const selectedProject = this.projects[this.selectedProjectIndex];
+      if (!selectedProject || !selectedProject.id) {
+        throw new Error("Progetto non selezionato o ID mancante.");
+      }
+      const projectId = selectedProject.id;
+      // Calcola il nuovo ordine (quante fasi ci sono + 1)
+      const newPhaseOrder = this.projectPhases.length;
+      // Questo "inganna" il framework di backend per non fallire la deserializzazione.
+      const phasePayload = {
+        // Genera un ID fittizio (l'ObjectId Java lo ignorerà/sovrascriverà)
+        id: Date.now().toString(),
+        title: this.newPhaseTitle,
+        order: newPhaseOrder, // Necessario se il backend tenta di leggerlo
+        tasks: [] // Invia una lista vuota per evitare NullPointer in Java
+      };
+      // Chiama il servizio con il payload completo
+      await lastValueFrom(this.projectService.createPhase(projectId, phasePayload));
+      this.closeAddPhaseModal(true);
+      this.loadProjects();
+    } catch (err) {
+      console.error('Errore durante la creazione della fase:', err);
+      this.createPhaseError = 'Seleziona un progetto prima di creare una fase';
+    } finally {
+      this.loadingCreatePhase = false;
+    }
+  }
+
+  /* ==================== TASK ==================== */
+  get tasksOfSelectedPhase(): Task[] {
+    const phase = this.projectPhases.find(p => p.active);
+    return phase ? phase.tasks : [];
+  }
+
+  openAddTaskModal() {
     this.showAddTaskModal = true;
+    this.newTaskTitle = '';
+    this.createTaskError = null;
   }
 
-  closeAddTaskModal(taskCreated?: boolean) {
+  closeAddTaskModal(created?: boolean) {
     this.showAddTaskModal = false;
-    if (taskCreated) this.loadProjectDetails(this.selectedProjectIndex);
+    if (created) this.loadProjectDetails(this.selectedProjectIndex);
   }
 
-  openEditTaskModal(task: Task) {
-    this.selectedTaskForEdit = task;
-    this.showEditTaskModal = true;
+  async createTask() {
+    if (!this.newTaskTitle) {
+      this.createTaskError = 'Il titolo è obbligatorio';
+      return;
+    }
+    this.loadingCreateTask = true;
+    this.createTaskError = null;
+    try {
+      const phase = this.projectPhases.find(p => p.active);
+      if (!phase) throw new Error("Seleziona una fase prima di creare un task");
+      await lastValueFrom(this.taskService.createTask({
+        projectId: this.projects[this.selectedProjectIndex].id!,
+        phaseId: phase.id!,
+        title: this.newTaskTitle
+      }));
+      this.closeAddTaskModal(true);
+    } catch (err) {
+      console.error(err);
+      this.createTaskError = 'Errore creando task';
+    } finally {
+      this.loadingCreateTask = false;
+    }
   }
 
-  closeEditTaskModal(taskUpdated?: boolean) {
-    this.showEditTaskModal = false;
-    if (taskUpdated) this.loadProjectDetails(this.selectedProjectIndex);
+  openDeleteTaskModal(task: Task) {
+    this.taskToDelete = task;
+    this.showDeleteTaskModal = true;
   }
 
+  async deleteTask() {
+    if (!this.taskToDelete) return;
+    try {
+      await lastValueFrom(this.taskService.deleteTask(this.taskToDelete.id!));
+      this.showDeleteTaskModal = false;
+      this.taskToDelete = null;
+      await this.loadProjectDetails(this.selectedProjectIndex);
+    } catch (err) {
+      console.error('Errore eliminando task:', err);
+    }
+  }
 }

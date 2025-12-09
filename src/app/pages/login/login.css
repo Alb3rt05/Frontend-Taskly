@@ -93,7 +93,7 @@ input:focus {
   box-shadow: 0 0 0 3px rgba(71, 152, 244, 0.2);
 }
 
-button {
+.login-button {
   align-self: center;
   width: 100%;
   margin-top: 3rem;
@@ -107,12 +107,10 @@ button {
   cursor: pointer;
   transition: background 0.3s ease;
 }
-
-button:hover {
+.login-button:hover {
   background: #3c86da;
 }
-
-button:disabled {
+.login-button:disabled {
   background: #a6c8f7;
   cursor: not-allowed;
 }
@@ -156,6 +154,11 @@ button:disabled {
   height: auto;
   object-fit: contain;
   transition: transform 0.3s ease;
+}
+.register-link {
+  cursor: pointer;
+  text-decoration: underline;
+  color: #3b82f6;
 }
 
 /* ====== RESPONSIVE DESIGN ====== */

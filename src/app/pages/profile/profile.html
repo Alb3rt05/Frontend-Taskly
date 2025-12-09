@@ -4,36 +4,63 @@
 
   <!-- Main Content -->
   <main class="profile-main">
+
     <!-- Hero -->
-    <app-hero-card
-      subtitle="Gestisci profilo"
+    <app-hero-card page="profile"
+      subtitle="Gestisci profilo" 
       title="Gestisci i tuoi dati personali e i progetti che hai creato"
-      buttonText="Salva modifiche"
-      (saveProfile)="TODO()">
+      buttonText="Pulisci Notifiche">
     </app-hero-card>
 
     <!-- Content -->
     <section class="profile-content">
+
       <!-- Profilo -->
       <div class="profile-info card">
         <h2>Profilo</h2>
-        <div class="form-group">
-          <label>Nome utente</label>
-          <div class="input-display">Mario</div>
-        </div>
-        <div class="form-group">
-          <label>Email</label>
-          <div class="input-display">mario@gmail.com</div>
-        </div>
+
+        <form [formGroup]="nameForm" (ngSubmit)="saveName()">
+          <label for="display-name">Nome utente</label>
+          <input id="display-name" formControlName="displayName" type="text">
+          @if (nameForm.get('displayName')?.touched && nameForm.get('displayName')?.invalid) {
+            <div class="error">Il nome non può essere vuoto.</div>
+          }
+          <button type="submit">Salva</button>
+        </form>
+
+        <form [formGroup]="emailForm" (ngSubmit)="saveEmail()">
+          <label for="email">Email</label>
+          <input id="email" formControlName="email" type="email">
+          @if (emailForm.get('email')?.touched && emailForm.get('email')?.invalid) {
+            <div class="error">Inserisci un'email valida.</div>
+          }
+          <button type="submit">Salva</button>
+        </form>
+
+        <form [formGroup]="passwordForm" (ngSubmit)="savePassword()">
+          <label for="password-current">Password attuale</label>
+          <input id="password-current" formControlName="passwordCurrent" type="password">
+
+          <label for="password-new">Password nuova</label>
+          <input id="password-new" formControlName="passwordNew" type="password">
+
+          @if (passwordForm.touched && passwordForm.errors?.['samePassword']) {
+            <div class="error">La nuova password non può essere uguale a quella attuale.</div>
+          }
+          @if (passwordForm.get('passwordNew')?.touched && passwordForm.get('passwordNew')?.invalid) {
+            <div class="error">La password nuova non può essere vuota.</div>
+          }
+
+          <button type="submit">Salva</button>
+        </form>
       </div>
 
-      <!-- Progetti -->
+      <!-- Notifiche -->
       <div class="profile-projects card">
-        <h2>I tuoi progetti</h2>
+        <h2>Notifiche</h2>
         <div class="projects-sidebar">
           <ul>
             <li class="project-item active">First Project
-              <button class="action edit">✏️</button>
               <button class="action delete">🗑️</button>
             </li>
             <li class="project-item">Second Project</li>
@@ -41,7 +68,9 @@
             <li class="project-item">Freelance</li>
           </ul>
         </div>
+        <button class="btn-primary">Salva</button>
       </div>
+
     </section>
   </main>
 </div>

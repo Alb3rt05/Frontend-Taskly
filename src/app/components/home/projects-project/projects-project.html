@@ -1,0 +1,7 @@
+<div>
+  <!-- Project Title -->
+  <h4>{{ project.title }}</h4>
+  <!-- Project details -->
+    <small>Creato il: {{ project.createdAt | date:'short' }}</small>
+    <small *ngIf="project.members!.length">Membri: {{ project.members!.length }}</small>
+</div>
