@@ -14,6 +14,7 @@ import { PhaseCard } from "../../components/home/project-phase/project-phase";
 import { Project } from '../../models/project';
 import { Task } from '../../models/task';
 import { Phase } from '../../models/phase';
+import { PhaseRequest } from '../../models/phaserequest';
 // Helpers
 import { lastValueFrom } from 'rxjs';
 import { TaskCard } from "../../components/home/project-task/project-task";
@@ -36,7 +37,7 @@ export interface PhaseWithTasks extends Phase {
     ProjectCard,
     PhaseCard,
     TaskCard
-],
+  ],
   templateUrl: './home.html',
   styleUrls: ['./home.css']
 })
@@ -103,18 +104,27 @@ export class Home implements OnInit {
   async loadProjectDetails(index: number) {
     const project = this.projects[index];
     if (!project) return;
+
+    // START: MODIFICA PER GESTIRE ENDPOINT TASK MANCANTE
+    let tasks: Task[] = [];
+    try {
+      // Questa chiamata tornerà un Observable vuoto grazie alla modifica in TaskService (punto 3)
+      // Se l'endpoint backend fosse attivo, le task verrebbero caricate qui.
+      tasks = await lastValueFrom(this.taskService.getTasksByProject(project.id!));
+    } catch (e) {
+      // In questo scenario (endpoint mancante), l'errore è previsto
+      console.warn("Tasks non disponibili (l'endpoint backend è mancante). Le fasi verranno caricate senza task.");
+    }
+    // END: MODIFICA PER GESTIRE ENDPOINT TASK MANCANTE
+
     try {
       const phases: Phase[] = project.phases || [];
       phases.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-      let tasks: Task[] = [];
-      try {
-        tasks = await lastValueFrom(this.taskService.getTasksByProject(project.id!));
-      } catch (e) {
-        console.warn("Tasks non disponibili, fasi in caricamento...");
-      }
+
       this.projectPhases = phases.map((p, idx) => ({
         ...p,
         active: idx === 0,
+        // La logica di filtraggio è corretta e applica le task caricate (che per ora saranno [])
         tasks: tasks.filter(t => t.phaseId === p.id),
         tasksDone: tasks.filter(t => t.phaseId === p.id && t.status === 'done')
       }));
@@ -201,6 +211,13 @@ export class Home implements OnInit {
       this.addMemberError = 'Inserisci un indirizzo email valido';
       return;
     }
+
+    // START: MODIFICA PER ENDPOINT MANCANTE
+    this.addMemberError = 'Funzionalità non disponibile. L\'API del backend non supporta ancora l\'aggiunta di membri.';
+    console.warn("Chiamata addMemberToProject bloccata: L'endpoint POST /projects/{id}/members è mancante nel backend.");
+
+    // Codice originale (commentato per prevenire errore 404):
+    /*
     try {
       await lastValueFrom(this.projectService.addMemberToProject(this.selectedProjectForMember.id!, this.newMemberEmail));
       this.closeAddMemberModal(true);
@@ -208,6 +225,8 @@ export class Home implements OnInit {
       console.error(err);
       this.addMemberError = 'Errore aggiungendo membro';
     }
+    */
+    // END: MODIFICA PER ENDPOINT MANCANTE
   }
 
   /* ==================== FASI ==================== */
@@ -259,12 +278,28 @@ export class Home implements OnInit {
     this.loadingCreatePhase = true;
     this.createPhaseError = null;
     try {
-      const projectId = this.projects[this.selectedProjectIndex].id!;
-      await lastValueFrom(this.projectService.createPhase(projectId, { title: this.newPhaseTitle }));
+      const selectedProject = this.projects[this.selectedProjectIndex];
+      if (!selectedProject || !selectedProject.id) {
+        throw new Error("Progetto non selezionato o ID mancante.");
+      }
+      const projectId = selectedProject.id;
+      // Calcola il nuovo ordine (quante fasi ci sono + 1)
+      const newPhaseOrder = this.projectPhases.length;
+      // Questo "inganna" il framework di backend per non fallire la deserializzazione.
+      const phasePayload = {
+        // Genera un ID fittizio (l'ObjectId Java lo ignorerà/sovrascriverà)
+        id: Date.now().toString(),
+        title: this.newPhaseTitle,
+        order: newPhaseOrder, // Necessario se il backend tenta di leggerlo
+        tasks: [] // Invia una lista vuota per evitare NullPointer in Java
+      };
+      // Chiama il servizio con il payload completo
+      await lastValueFrom(this.projectService.createPhase(projectId, phasePayload));
       this.closeAddPhaseModal(true);
+      this.loadProjects();
     } catch (err) {
-      console.error('Seleziona prima un progetto:', err);
-      this.createPhaseError = 'Errore creando fase';
+      console.error('Errore durante la creazione della fase:', err);
+      this.createPhaseError = 'Seleziona un progetto prima di creare una fase';
     } finally {
       this.loadingCreatePhase = false;
     }

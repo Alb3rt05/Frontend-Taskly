@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { Task } from '../models/task';
 
 export interface TaskResponse {
@@ -36,7 +36,9 @@ export class TaskService {
 
   // Recupera tutte le task di un progetto
   getTasksByProject(projectId: string): Observable<Task[]> {
-    return this.http.get<Task[]>(`${this.apiUrl}/tasks/project/${projectId}`);
+    // 🛑 Endpoint /tasks/project/{projectId} NON implementato nel backend. Restituisco dati vuoti.
+    console.warn("L'endpoint GET /tasks/project/{projectId} Task non disponibili.");
+    return of([]);
   }
   // Recupera una singola task
   createTask(task: TaskRequest): Observable<TaskResponse> {

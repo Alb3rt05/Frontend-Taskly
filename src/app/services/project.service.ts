@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, Observable } from 'rxjs';
 import { Project } from '../models/project';
+import { PhaseRequest } from '../models/phaserequest';
 
 @Injectable({
   providedIn: 'root'
@@ -56,9 +57,8 @@ export class ProjectService {
 
   /* ------------------------------Fasi------------------------------  */
   // Crea fase
-  createPhase(projectId: string, body: { title: string }) {
-    const url = `${this.apiUrl}/projects/${projectId}/phases`;
-    return this.http.post(url, body);
+  createPhase(projectId: string, phaserequest: PhaseRequest): Observable<any> {
+    return this.http.post(`${this.apiUrl}/projects/${projectId}/phases`, phaserequest);
   }
   // Elimina fase
   deletePhase(projectId: string, phaseId: string) {
