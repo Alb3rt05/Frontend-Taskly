@@ -19,6 +19,7 @@ import { PhaseRequest } from '../../models/phaserequest';
 // Helpers
 import { lastValueFrom } from 'rxjs';
 import { TaskCard } from "../../components/home/project-task/project-task";
+import { Title } from '@angular/platform-browser';
 
 // INTERFACCIA FASE + TASKS
 export interface PhaseWithTasks extends Phase {
@@ -261,10 +262,11 @@ export class Home implements OnInit {
   }
 
   async deletePhase() {
-    if (!this.phaseToDelete) return;
+    if (!this.phaseToDelete || !this.phaseToDelete.id) return;
     const project = this.projects[this.selectedProjectIndex];
+    if (!project.id) return;
     try {
-      await lastValueFrom(this.projectService.deletePhase(project.id!, this.phaseToDelete.id));
+      await lastValueFrom(this.projectService.deletePhase(project.id, this.phaseToDelete.id));
       // Aggiorna stato locale senza ricaricare
       this.projectPhases = this.projectPhases.filter(p => p.id !== this.phaseToDelete!.id);
       project.phases = project.phases?.filter(p => p.id !== this.phaseToDelete!.id);
@@ -295,13 +297,18 @@ export class Home implements OnInit {
     try {
       const selectedProject = this.projects[this.selectedProjectIndex];
       if (!selectedProject?.id) throw new Error("Progetto non selezionato.");
+      // Invia solo title e order, lascia backend creare l'id
       const phasePayload = {
-        id: Date.now().toString(),
         title: this.newPhaseTitle,
         order: (selectedProject.phases?.length || 0),
-        tasks: []
       };
-      await lastValueFrom(this.projectService.createPhase(selectedProject.id, phasePayload));
+      const createdPhase = await lastValueFrom(this.projectService.createPhase(selectedProject.id, phasePayload));
+      // Aggiorna fase locale con l'id reale
+      selectedProject.phases = selectedProject.phases || [];
+      selectedProject.phases.push(createdPhase);
+      // Carica dettagli progetto con fase appena creata
+      await this.loadProjectDetails(this.selectedProjectIndex);
+      this.closeAddPhaseModal(true);
       // Salva progetto selezionato
       localStorage.setItem('selectedProjectId', selectedProject.id);
       // Ricarica pagina
@@ -333,54 +340,69 @@ export class Home implements OnInit {
     if (created) this.loadProjectDetails(this.selectedProjectIndex);
   }
 
-  // in home.ts
-
-  async createTask() {
-    if (!this.newTaskTitle) {
-      this.createTaskError = 'Il titolo è obbligatorio';
-      return;
-    }
-    this.loadingCreateTask = true;
-    this.createTaskError = null;
+  private getUserIdFromToken(): string | null {
     try {
-      const project = this.projects[this.selectedProjectIndex];
-      const phase = this.projectPhases.find(p => p.active);
-      // 2. CONTROLLO CRITICO: Verifichiamo la presenza di Project e Phase e dei loro ID
-      if (!project || !project.id) {
-        throw new Error("Impossibile trovare l'ID del Progetto Selezionato.");
-      }
-      if (!phase || !phase.id) {
-        // Questo è il punto più probabile di fallimento
-        throw new Error("Seleziona una Fase per creare il Task (Fase ID mancante).");
-      }
-      // Logging per debug finale (opzionale, ma utile)
-      console.log('Payload Task in invio:', {
-        projectId: project.id,
-        phaseId: phase.id,
-        title: this.newTaskTitle,
-        description: this.newTaskDescription || '',
-        status: 'TODO',
-        dueDate: null
-      });
-      // Creazione del payload
-      const payload: TaskRequest = {
-        projectId: project.id,
-        phaseId: phase.id,
-        title: this.newTaskTitle,
-        description: this.newTaskDescription || '',
-        status: 'TODO',
-        dueDate: null // O 'undefined' se non hai aggiornato l'interfaccia
-      };
-      await lastValueFrom(this.taskService.createTask(payload));
-      this.closeAddTaskModal(true);
-    } catch (err: any) {
-      console.error(err);
-      // Messaggio di errore più specifico per l'utente
-      this.createTaskError = err.message || 'Errore di connessione o dati mancanti. Verifica che Progetto e Fase siano selezionati.';
-    } finally {
-      this.loadingCreateTask = false;
+      const token = localStorage.getItem('accessToken');
+      if (!token) return null;
+      const parts = token.split('.');
+      if (parts.length < 2) return null;
+      const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+      return payload.sub || payload.userId || payload.id || null;
+    } catch (e) {
+      console.warn('Cannot decode token', e);
+      return null;
     }
   }
+
+  async createTask() {
+  if (!this.newTaskTitle) {
+    this.createTaskError = 'Il titolo è obbligatorio';
+    return;
+  }
+
+  this.loadingCreateTask = true;
+  this.createTaskError = null;
+
+  try {
+    const project = this.projects[this.selectedProjectIndex];
+    const phase = this.projectPhases.find(p => p.active);
+
+    if (!project || !project.id) throw new Error("ID progetto mancante");
+    if (!phase || !phase.id) throw new Error("ID fase mancante");
+
+    // Payload pronto per il backend
+    const payload: TaskRequest = {
+      projectId: project.id,           // stringa ObjectId valida dal DB
+      phaseId: phase.id,               // stringa ObjectId valida dal DB
+      title: this.newTaskTitle,
+      description: this.newTaskDescription || '',
+      status: 'TODO',
+      dueDate: null,
+      assigneesIds: []                 // Array vuoto se non ci sono assegnatari
+    };
+
+    // Chiamata al service
+    await lastValueFrom(this.taskService.createTask(payload));
+
+    // Chiudi modal e ricarica task
+    this.closeAddTaskModal(true);
+
+  } catch (err: any) {
+    console.error('Errore creando task:', err);
+
+    // Messaggio utente più chiaro
+    if (err.status === 400) {
+      this.createTaskError = 'Dati del task non validi. Verifica titolo, progetto e fase.';
+    } else if (err.status === 401) {
+      this.createTaskError = 'Non sei autenticato. Effettua il login.';
+    } else {
+      this.createTaskError = err.message || 'Errore nella creazione del task.';
+    }
+  } finally {
+    this.loadingCreateTask = false;
+  }
+}
+
 
   // ----------------- Eliminazione -----------------
   openDeleteTaskModal(task: Task) {

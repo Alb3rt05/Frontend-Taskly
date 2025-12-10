@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { map, Observable, of } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { map, Observable } from 'rxjs';
 import { Task } from '../models/task';
 
 export interface TaskResponse {
@@ -34,6 +34,14 @@ export class TaskService {
   private apiUrl = 'https://hello-full-stack-be-f8ehd3erddgdfhhd.germanywestcentral-01.azurewebsites.net';
 
   constructor(private http: HttpClient) { }
+
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('accessToken');
+    if (!token) throw new Error("Utente non autenticato");
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+  }
 
   // Recupera tutte le task di un progetto
   getTasksByProject(projectId: string): Observable<Task[]> {
@@ -70,23 +78,25 @@ export class TaskService {
       );
   }
 
-  // Recupera una singola task
   createTask(task: TaskRequest): Observable<TaskResponse> {
+    const headers = this.getAuthHeaders();
     const payload = {
       ...task,
-      assigneesIds: task.assigneesIds ?? []   // ✔️ nome giusto
+      assigneesIds: task.assigneesIds ?? []
     };
-    return this.http.post<TaskResponse>(`${this.apiUrl}/tasks`, payload);
+    return this.http.post<TaskResponse>(`${this.apiUrl}/tasks`, payload, { headers });
   }
 
-  // Aggiorna una task
   updateTask(taskId: string, task: TaskRequest): Observable<TaskResponse> {
-    return this.http.put<TaskResponse>(`${this.apiUrl}/tasks/${taskId}`, task);
+    const headers = this.getAuthHeaders();
+    return this.http.put<TaskResponse>(`${this.apiUrl}/tasks/${taskId}`, task, { headers });
   }
-  // Elimina una task
+
   deleteTask(taskId: string) {
-    return this.http.delete(`${this.apiUrl}/tasks/${taskId}`);
+    const headers = this.getAuthHeaders();
+    return this.http.delete(`${this.apiUrl}/tasks/${taskId}`, { headers });
   }
+
   // Aggiunge un assignee alla task
   assignTask(taskId: string, assigneeIds: string[]): Observable<TaskResponse> {
     return this.http.put<TaskResponse>(
