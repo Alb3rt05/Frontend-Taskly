@@ -2,11 +2,11 @@
   <app-sidebar></app-sidebar>
 
   <main class="main">
+
     <!-- Hero -->
     <app-hero-card page="home" subtitle="Crea Progetto" title="Inizia ora e dai vita al tuo nuovo Progetto"
-      [projectButtonText]="'Crea Progetto'" (createProject)="openAddProjectModal()"
-      [phaseButtonText]="'Crea Fase'" (createPhase)="openAddPhaseModal()"
-      [taskButtonText]="'Crea Task'" (createTask)="openAddTaskModal()">
+      [projectButtonText]="'Crea Progetto'" (createProject)="openAddProjectModal()" [phaseButtonText]="'Crea Fase'"
+      (createPhase)="openAddPhaseModal()" [taskButtonText]="'Crea Task'" (createTask)="openAddTaskModal()">
     </app-hero-card>
 
     <!-- Header -->
@@ -17,67 +17,95 @@
       </div>
     </section>
 
+    <!-- === 3 COLONNE === -->
     <div class="projects-layout">
-      <!-- Colonna progetti -->
+
+      <!-- COLONNA PROGETTI -->
       <div class="projects-sidebar">
         <h3 class="projects-title">Tutti i progetti</h3>
+
         <ul>
           <li *ngFor="let project of projects; let i = index" class="project-item"
             [class.active]="selectedProjectIndex === i" (click)="selectProject(i)">
-            <app-projects-project [project]="project" [active]="selectedProjectIndex === i"></app-projects-project>
+
+            <app-projects-project [project]="project" [active]="selectedProjectIndex === i">
+            </app-projects-project>
+
             <div *ngIf="selectedProjectIndex === i" class="project-actions">
-              <button title="Modifica progetto" class="edit-btn"
+              <button title="Aggiungi Membro" class="edit-btn"
                 (click)="openAddMemberModal(project); $event.stopPropagation();">
-                <img src="/icons/addPeople.svg" alt="Edit">
+                <img src="/icons/addPeople.svg" alt="Add Member">
               </button>
+
               <button title="Elimina progetto" class="delete-btn"
                 (click)="openDeleteProjectModal(project); $event.stopPropagation();">
                 <img src="/icons/deleteProject.svg" alt="Delete">
               </button>
             </div>
           </li>
+
           <p *ngIf="projects.length === 0">Nessun progetto trovato</p>
         </ul>
       </div>
 
-      <!-- Colonna fasi -->
+      <!-- COLONNA FASI -->
       <div class="projects-sidebar">
         <h3 class="projects-title">Fasi del progetto</h3>
+
         <ul>
           <li *ngFor="let phase of projectPhases; let i = index" class="project-item"
-            [class.active]="phase.active" (click)="selectPhase(i)">
-            <app-project-phase [phase]="phase" [active]="selectedPhaseIndex === i"></app-project-phase>
+            [class.active]="selectedPhaseIndex === i" (click)="selectPhase(i)">
+
+            <app-project-phase [phase]="phase" [active]="selectedPhaseIndex === i">
+            </app-project-phase>
+
             <div *ngIf="selectedPhaseIndex === i" class="project-actions">
               <button title="Elimina fase" class="delete-btn"
                 (click)="openDeletePhaseModal(phase); $event.stopPropagation();">
                 <img src="/icons/deleteProject.svg" alt="Delete">
               </button>
             </div>
+
           </li>
+
           <p *ngIf="projectPhases.length === 0">Nessuna fase trovata</p>
         </ul>
       </div>
 
-      <!-- Colonna task -->
+      <!-- COLONNA TASK -->
       <div class="projects-sidebar">
         <h3 class="projects-title">Task della fase</h3>
+
         <ul>
           <li *ngFor="let task of tasksOfSelectedPhase; let i = index" class="project-item"
             [class.active]="selectedTaskIndex === i" (click)="selectedTaskIndex = i">
-            <app-project-task [task]="task" [active]="selectedTaskIndex === i"></app-project-task>
+
+            <app-project-task [task]="task" [active]="selectedTaskIndex === i">
+            </app-project-task>
+
             <div *ngIf="selectedTaskIndex === i" class="project-actions">
+              <button title="Modifica Task" class="edit-btn"
+                (click)="openEditTaskModal(task); $event.stopPropagation();">
+                <img src="/icons/edit.svg" alt="Edit">
+              </button>
+
               <button title="Elimina Task" class="delete-btn"
                 (click)="openDeleteTaskModal(task); $event.stopPropagation();">
                 <img src="/icons/deleteProject.svg" alt="Delete">
               </button>
             </div>
+
           </li>
+
           <p *ngIf="tasksOfSelectedPhase.length === 0">Nessun task trovato</p>
         </ul>
       </div>
-    </div>
 
-    <!-- =================== OVERLAYS =================== -->
+    </div>
+    <!-- FINE 3 COLONNE -->
+
+    <!-- === OVERLAY MODALS identici === -->
+
     <!-- Add Member -->
     <div class="overlay" *ngIf="showAddMemberModal">
       <div class="modal-card">
@@ -88,6 +116,9 @@
         <button type="submit" class="enter-button" (click)="addMember()">Aggiungi</button>
         <button class="close-overlay" (click)="closeAddMemberModal()">Chiudi</button>
       </div>
+      <p class="modal-info" *ngIf="selectedProjectForMember">
+        Aggiunta a: {{ selectedProjectForMember.title }}
+      </p>
     </div>
 
     <!-- Add Project -->
@@ -124,11 +155,27 @@
         <h3>Crea nuovo task</h3>
         <label>Titolo task</label>
         <input type="text" [(ngModel)]="newTaskTitle" placeholder="Titolo task" />
+        <label>Descrizione</label>
+        <textarea [(ngModel)]="newTaskDescription" placeholder="Descrizione (opzionale)"></textarea>
         <div class="error" *ngIf="createTaskError">{{ createTaskError }}</div>
         <button type="submit" class="enter-button" [disabled]="loadingCreateTask" (click)="createTask()">
           {{ loadingCreateTask ? 'Creazione...' : 'Crea task' }}
         </button>
         <button class="close-overlay" (click)="closeAddTaskModal()">Chiudi</button>
+      </div>
+    </div>
+
+    <!-- Edit Task -->
+    <div class="overlay" *ngIf="showEditTaskModal">
+      <div class="modal-card">
+        <h3>Modifica Task: {{ taskToEdit?.title }}</h3>
+        <label>Titolo</label>
+        <input type="text" [(ngModel)]="editTaskTitle" />
+        <label>Descrizione</label>
+        <textarea [(ngModel)]="editTaskDescription"></textarea>
+        <div class="error" *ngIf="updateTaskError">{{ updateTaskError }}</div>
+        <button type="submit" class="enter-button" (click)="updateTask()">Salva Modifiche</button>
+        <button class="close-overlay" (click)="closeEditTaskModal()">Annulla</button>
       </div>
     </div>
 
@@ -148,7 +195,7 @@
         <h3>Conferma eliminazione</h3>
         <p>Vuoi davvero eliminare "{{ phaseToDelete?.title }}"?</p>
         <button type="submit" class="enter-button" (click)="deletePhase()">Elimina</button>
-        <button class="close-overlay" (click)="showDeletePhaseModal=false">Annulla</button>
+        <button class="close-overlay" (click)="closeDeletePhaseModal()">Annulla</button>
       </div>
     </div>
 
@@ -158,7 +205,7 @@
         <h3>Conferma eliminazione</h3>
         <p>Vuoi davvero eliminare "{{ taskToDelete?.title }}"?</p>
         <button type="submit" class="enter-button" (click)="deleteTask()">Elimina</button>
-        <button class="close-overlay" (click)="showDeleteTaskModal = false">Annulla</button>
+        <button class="close-overlay" (click)="closeDeleteTaskModal()">Annulla</button>
       </div>
     </div>
 

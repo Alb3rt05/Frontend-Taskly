@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { map, Observable, of } from 'rxjs';
 import { Task } from '../models/task';
 
 export interface TaskResponse {
@@ -16,13 +16,14 @@ export interface TaskResponse {
 }
 
 export interface TaskRequest {
+  id?: string;
   projectId: string;
   phaseId: string;
   title: string;
   description?: string;
-  dueDate?: string;
-  status?: string;
-  assigneeIds?: string[];
+  status: 'TODO' | 'IN_PROGRESS' | 'DONE';
+  dueDate?: string | null;
+  assigneesIds?: string[];
 }
 
 @Injectable({
@@ -36,14 +37,48 @@ export class TaskService {
 
   // Recupera tutte le task di un progetto
   getTasksByProject(projectId: string): Observable<Task[]> {
-    // 🛑 Endpoint /tasks/project/{projectId} NON implementato nel backend. Restituisco dati vuoti.
-    console.warn("L'endpoint GET /tasks/project/{projectId} Task non disponibili.");
-    return of([]);
+    return this.http.get<TaskResponse[]>(`${this.apiUrl}/tasks/project/${projectId}`)
+      .pipe(
+        map(list => list.map(t => ({
+          id: t.id,
+          projectId: t.projectId,
+          phaseId: t.phaseId,
+          title: t.title,
+          description: t.description,
+          assignees: t.assignees || [],
+          dueDate: t.dueDate,
+          status: t.status as "TODO" | "IN_PROGRESS" | "DONE",
+          createdAt: t.createdAt
+        })))
+      );
   }
+
+  getTasksByPhase(phaseId: string): Observable<Task[]> {
+    return this.http.get<TaskResponse[]>(`${this.apiUrl}/tasks/phase/${phaseId}`)
+      .pipe(
+        map(list => list.map(t => ({
+          id: t.id,
+          projectId: t.projectId,
+          phaseId: t.phaseId,
+          title: t.title,
+          description: t.description,
+          assignees: t.assignees || [],
+          dueDate: t.dueDate,
+          status: t.status as "TODO" | "IN_PROGRESS" | "DONE",
+          createdAt: t.createdAt
+        })))
+      );
+  }
+
   // Recupera una singola task
   createTask(task: TaskRequest): Observable<TaskResponse> {
-    return this.http.post<TaskResponse>(`${this.apiUrl}/tasks`, task);
+    const payload = {
+      ...task,
+      assigneesIds: task.assigneesIds ?? []   // ✔️ nome giusto
+    };
+    return this.http.post<TaskResponse>(`${this.apiUrl}/tasks`, payload);
   }
+
   // Aggiorna una task
   updateTask(taskId: string, task: TaskRequest): Observable<TaskResponse> {
     return this.http.put<TaskResponse>(`${this.apiUrl}/tasks/${taskId}`, task);

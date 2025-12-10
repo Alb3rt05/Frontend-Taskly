@@ -9,11 +9,10 @@
 
 /* ====== MAIN ====== */
 .main {
+  padding: 20px;
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 2rem 3rem;
-  gap: 2rem;
   overflow-y: auto;
   margin-left: 250px; /* spazio per sidebar fissa */
 }
@@ -60,6 +59,7 @@
 }
 
 .project-item {
+  height: 100px;
   margin-bottom: 0.75rem;
   cursor: pointer;
   background: #f8f9fb;
@@ -115,7 +115,6 @@
   display: flex;
   gap: 0.5rem;
   align-items: center;
-  margin-top: 0.5rem;
 }
 
 .project-actions button {

@@ -7,7 +7,7 @@ export interface Task {
   labels?: string[];
   assignees?: string[];
   dueDate?: string;
-  status?: string;
+  status: "TODO" | "IN_PROGRESS" | "DONE";
   createdBy?: string;
   createdAt?: string;
   updatedAt?: string;
